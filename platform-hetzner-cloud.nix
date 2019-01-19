@@ -10,12 +10,6 @@ with lib; {
   ];
 
   config = {
-    # use different SSH keys for access to Hetzner Cloud instances
-    majewsky.base.useSSHKeys = false;
-    users.users.stefan.openssh.authorizedKeys.keyFiles = [
-      /nix/my/secrets/ssh-keys-hetzner
-    ];
-
     # use Grub bootloader
     boot.loader.grub = {
       enable = true;
