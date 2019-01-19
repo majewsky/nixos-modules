@@ -10,6 +10,7 @@ with lib; {
 
   imports = [
     /nix/my/secrets/generated-basic.nix # supplies machineID and hostname
+    /nix/my/secrets/generated-consul.nix # supplies more services.consul.extraConfig
     /nix/my/secrets/generated-wg-monitoring.nix # supplies monitoringNetwork options
   ];
 
@@ -39,6 +40,12 @@ with lib; {
         description = "public key of wg-monitoring server";
         type = types.string;
       };
+    };
+
+    consul.isServer = mkOption {
+      default = false;
+      description = "whether this machine is a server (or just a client) in the Consul cluster";
+      type = types.bool;
     };
   };
 
@@ -84,6 +91,35 @@ with lib; {
       }];
       privateKeyFile = "/nix/my/secrets/generated-wg-monitoring-key";
     };
+
+    services.prometheus.exporters.node = {
+      enable = true;
+      listenAddress = "${cfg.monitoringNetwork.slash24}.0";
+      disabledCollectors = [ "wifi" ];
+      openFirewall = true;
+      firewallFilter = "-i wg-monitoring -p tcp -m tcp --dport 9100";
+    };
+
+    ############################################################################
+    # Consul for service discovery within the monitoring network
+
+    services.consul = {
+      enable = true;
+      interface.bind = "wg-monitoring";
+      extraConfig = {
+        log_level = "INFO";
+        server = cfg.consul.isServer;
+        # The following extraConfig options come from a secret module:
+        #   bootstrap, datacenter, encrypt, retry_join
+      };
+    };
+
+    # open ports for Consul cluster-internal traffic
+    networking.firewall.interfaces."wg-monitoring" = {
+      allowedTCPPorts = [ 8300 8301 8302 ];
+      allowedUDPPorts = [ 8300 8301 8302 ];
+    };
+
   };
 
 }
