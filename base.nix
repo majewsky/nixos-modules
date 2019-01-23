@@ -134,7 +134,7 @@ with lib; {
 
     services.prometheus.exporters.node = {
       enable = true;
-      listenAddress = "${cfg.monitoringNetwork.slash24}.0";
+      listenAddress = "${cfg.monitoringNetwork.slash24}.${toString cfg.machineID}";
       disabledCollectors = [ "wifi" ];
       openFirewall = true;
       firewallFilter = "-i wg-monitoring -p tcp -m tcp --dport 9100";
