@@ -51,6 +51,27 @@ with lib; {
 
   config = {
     ############################################################################
+    # package overrides (copy-pasted from j03, thx!)
+
+    nixpks.config.packageOverrides = pkgs: {
+      channels = {
+        # It seems like numeric channel names are not updated correctly to
+        #   /nix/var/nix/profiles/per-user/root/channels/
+        # when using:
+        #   nixos-rebuild switch --upgrade
+        # however this works:
+        #   nix-channel --update
+
+        ## nix-channel --add https://nixos.org/channels/nixos-unstable nixos-unstable
+        unstable = import <nixos-unstable>
+          { config = config.nixpkgs.config; };
+        ## nix-channel --add https://nixos.org/channels/nixos-18.09 nixos-eighteen-nine
+        # nix1809 = import <nixos-eighteen-nine>
+        #   { config = config.nixpkgs.config; };
+      };
+    };
+
+    ############################################################################
     # basic setup for interactive use
 
     environment.systemPackages = with pkgs; [
@@ -104,6 +125,7 @@ with lib; {
     # Consul for service discovery within the monitoring network
 
     services.consul = {
+      package = pkgs.channels.unstable.consul;
       enable = true;
       interface.bind = "wg-monitoring";
       extraConfig = {
