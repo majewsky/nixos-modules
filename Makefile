@@ -10,3 +10,6 @@ pull:
 
 unpack:
 	bash ./unpack-secrets.sh
+
+switch: pull
+	nixos-rebuild switch
