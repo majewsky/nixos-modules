@@ -103,6 +103,13 @@ with lib; {
     # like its documentation says
     networking.firewall.allowedTCPPorts = [ 22 ];
 
+    # silence Git's complaints about missing identity
+    environment.etc."gitconfig".text = ''
+      [user]
+      name = Fake
+      email = fake@example.com
+    '';
+
     ############################################################################
     # overlay network for monitoring using Wireguard
 
