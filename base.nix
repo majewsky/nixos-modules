@@ -98,17 +98,21 @@ with lib; {
       openssh.authorizedKeys.keyFiles = [ /nix/my/secrets/ssh-keys ];
     };
 
-    # for some reason, when setting allowedTCPPorts and allowedUDPPorts for
-    # Consul (see below), services.openssh.enable does not open the firewall
-    # like its documentation says
-    networking.firewall.allowedTCPPorts = [ 22 ];
-
     # silence Git's complaints about missing identity
     environment.etc."gitconfig".text = ''
       [user]
       name = Fake
       email = fake@example.com
     '';
+
+    # workaround for https://github.com/NixOS/nixpkgs/issues/47580 which will
+    # be fixed in 19.03
+    networking.firewall.interfaces.default = mkIf (config.system.stateVersion == "18.09") {
+      allowedTCPPorts      = config.networking.firewall.allowedTCPPorts;
+      allowedTCPPortRanges = config.networking.firewall.allowedTCPPortRanges;
+      allowedUDPPorts      = config.networking.firewall.allowedUDPPorts;
+      allowedUDPPortRanges = config.networking.firewall.allowedUDPPortRanges;
+    };
 
     ############################################################################
     # overlay network for monitoring using Wireguard
