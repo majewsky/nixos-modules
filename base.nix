@@ -129,6 +129,9 @@ with lib; {
       privateKeyFile = "/nix/my/secrets/generated-wg-monitoring-key";
     };
 
+    ############################################################################
+    # Consul for service discovery within the monitoring network
+
     services.prometheus.exporters.node = {
       enable = true;
       listenAddress = "${cfg.monitoringNetwork.slash24}.0";
@@ -136,6 +139,18 @@ with lib; {
       openFirewall = true;
       firewallFilter = "-i wg-monitoring -p tcp -m tcp --dport 9100";
     };
+
+    # TODO add this to systemd.services.consul.restartTriggers
+    environment.etc."consul.d/prometheus-node-exporter.json".text = ''
+      {
+        "service": {
+          "name": "prometheus-node-exporter",
+          "port": 9100,
+          "tags": [ "prometheus" ],
+          "meta": {}
+        }
+      }
+    '';
 
     ############################################################################
     # Consul for service discovery within the monitoring network
