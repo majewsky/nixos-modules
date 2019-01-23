@@ -53,7 +53,7 @@ with lib; {
     ############################################################################
     # package overrides (copy-pasted from j03, thx!)
 
-    nixpks.config.packageOverrides = pkgs: {
+    nixpkgs.config.packageOverrides = pkgs: {
       channels = {
         # It seems like numeric channel names are not updated correctly to
         #   /nix/var/nix/profiles/per-user/root/channels/
