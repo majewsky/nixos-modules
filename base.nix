@@ -98,6 +98,11 @@ with lib; {
       openssh.authorizedKeys.keyFiles = [ /nix/my/secrets/ssh-keys ];
     };
 
+    # for some reason, when setting allowedTCPPorts and allowedUDPPorts for
+    # Consul (see below), services.openssh.enable does not open the firewall
+    # like its documentation says
+    networking.firewall.allowedTCPPorts = [ 22 ];
+
     ############################################################################
     # overlay network for monitoring using Wireguard
 
