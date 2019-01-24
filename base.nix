@@ -75,10 +75,28 @@ with lib; {
     # basic setup for interactive use
 
     environment.systemPackages = with pkgs; [
+      # TODO gofu
+      # TODO bootstrap-devenv
+      dnsutils # dig(1), host(1)
       git
-      gnumake
-      gnupg
+      gnumake # for decrypting the secrets in this repo
+      gnupg   # for decrypting the secrets in this repo
+      gptfdisk
+      jq
+      lsof
+      nmap # ncat(1)
+      pv
+      ripgrep
+      rsync
+      screen
+      strace
+      tcpdump
+      traceroute
+      tree
+      units
       vim
+      wget
+      zsh
     ];
 
     i18n = {
