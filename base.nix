@@ -49,6 +49,19 @@ with lib; {
     };
   };
 
+  options.majewsky.git = {
+    userName = mkOption {
+      default = "Fake";
+      description = "value of user.name in /etc/gitconfig";
+      type = types.string;
+    };
+    userEMail = mkOption {
+      default = "fake@example.com";
+      description = "value of user.email in /etc/gitconfig";
+      type = types.string;
+    };
+  };
+
   config = {
     ############################################################################
     # package overrides (copy-pasted from j03, thx!)
@@ -119,8 +132,8 @@ with lib; {
     # silence Git's complaints about missing identity
     environment.etc."gitconfig".text = ''
       [user]
-      name = Fake
-      email = fake@example.com
+      name = ${config.majewsky.git.userName}
+      email = ${config.majewsky.git.userEMail}
     '';
 
     # workaround for https://github.com/NixOS/nixpkgs/issues/47580 which will
