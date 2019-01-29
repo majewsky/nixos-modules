@@ -13,9 +13,9 @@ in
 with lib; {
 
   imports = [
-    /nix/my/secrets/generated-basic.nix # supplies machineID and hostname
-    /nix/my/secrets/generated-consul.nix # supplies more services.consul.extraConfig
-    /nix/my/secrets/generated-wg-monitoring.nix # supplies monitoringNetwork options
+    /nix/my/unpacked/generated-basic.nix # supplies machineID and hostname
+    /nix/my/unpacked/generated-consul.nix # supplies more services.consul.extraConfig
+    /nix/my/unpacked/generated-wg-monitoring.nix # supplies monitoringNetwork options
   ];
 
   options.majewsky.base = {
@@ -55,12 +55,12 @@ with lib; {
 
   options.majewsky.git = {
     userName = mkOption {
-      default = "Fake";
+      default = "Stefan Majewsky";
       description = "value of user.name in /etc/gitconfig";
       type = types.string;
     };
     userEMail = mkOption {
-      default = "fake@example.com";
+      default = "majewsky@gmx.net";
       description = "value of user.email in /etc/gitconfig";
       type = types.string;
     };
@@ -133,7 +133,7 @@ with lib; {
       isNormalUser = true;
       uid = 1000;
       extraGroups = ["wheel"];
-      openssh.authorizedKeys.keyFiles = [ /nix/my/secrets/ssh-keys ];
+      openssh.authorizedKeys.keyFiles = [ /nix/my/unpacked/ssh-keys ];
     };
 
     # silence Git's complaints about missing identity
@@ -161,10 +161,10 @@ with lib; {
         allowedIPs = [ "${cfg.monitoringNetwork.slash24}.0/24" ];
         endpoint = "${cfg.monitoringNetwork.server.endpoint}";
         publicKey = "${cfg.monitoringNetwork.server.publicKey}";
-        presharedKeyFile = "/nix/my/secrets/generated-wg-monitoring-psk";
+        presharedKeyFile = toString /nix/my/unpacked/generated-wg-monitoring-psk;
         persistentKeepalive = 25;
       }];
-      privateKeyFile = "/nix/my/secrets/generated-wg-monitoring-key";
+      privateKeyFile = toString /nix/my/unpacked/generated-wg-monitoring-key;
     };
 
     ############################################################################

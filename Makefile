@@ -6,10 +6,12 @@ all:
 pull:
 	git pull
 	git reset --hard origin/master
-	@make unpack
+	@make apply
 
-unpack:
-	bash ./unpack-secrets.sh
+apply:
+	sudo bash ./sh/apply.sh
 
-switch: pull
-	nixos-rebuild switch
+build: apply
+	sudo nixos-rebuild build
+switch: apply
+	sudo nixos-rebuild switch --upgrade

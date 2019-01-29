@@ -7,16 +7,14 @@ My NixOS modules. Does not use NixOps at the moment, but probably should.
 Install NixOS according to its manual, using `bootstrap/configuration.nix`.
 
 ```
-sudo git clone https://github.com/majewsky/nixos-modules /nix/my
+sudo install -d -m 0700 -o stefan -g users /x
+git clone https://github.com/majewsky/nixos-modules /x/src/github.com/majewsky/nixos-modules
 ```
 
-Get the machine key from `gpg --decrypt < keys.sh.gpg` in the secrets repo and write it into `/nix/my/secrets/key`.
+Get the machine key from `gpg --decrypt < keys.sh.gpg` in the secrets repo.
 
 ```
-cd /nix/my
-make unpack
-cd /etc/nixos
-mv configuration.nix configuration.bak
-ln -s /nix/my/secrets/root.nix /etc/nixos/configuration.nix
-nixos-rebuild switch
+cd /x/src/github.com/majewsky/nixos-modules
+make apply # asks for the machine key
+sudo nixos-rebuild switch
 ```
