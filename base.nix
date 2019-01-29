@@ -96,7 +96,6 @@ with lib; {
       (pkgs.callPackage ./pkgs/gofu/default.nix {})
       dnsutils # dig(1), host(1)
       git
-      gofu
       gnumake # for decrypting the secrets in this repo
       gnupg   # for decrypting the secrets in this repo
       gptfdisk
@@ -134,6 +133,7 @@ with lib; {
       isNormalUser = true;
       uid = 1000;
       extraGroups = ["wheel"];
+      shell = pkgs.zsh;
       openssh.authorizedKeys.keyFiles = [ /nix/my/unpacked/ssh-keys ];
     };
 
