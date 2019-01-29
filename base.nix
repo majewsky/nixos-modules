@@ -87,7 +87,7 @@ with lib; {
         #   { config = config.nixpkgs.config; };
       };
 
-      gofu = import ./pkgs/gofu/default.nix pkgs;
+      gofu = pkgs.callPackage ./pkgs/gofu/default.nix {};
     };
 
     ############################################################################
