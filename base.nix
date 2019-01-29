@@ -1,4 +1,8 @@
 # This module is imported by every system, both headless servers and workstations.
+# REPLACES hologram-base
+# REPLACES hologram-openssh
+# REPLACES hologram-monitoring-agents
+# REPLACES hologram-monitoring-client
 
 { config, pkgs, lib, ... }:
 
@@ -116,10 +120,13 @@ with lib; {
       consoleFont = "Lat2-Terminus16";
       consoleKeyMap = "us";
       defaultLocale = "de_DE.UTF-8";
+      supportedLocales = [ "de_DE.UTF-8" "en_US.UTF-8" ];
     };
 
-    boot.tmpOnTmpfs = true;
     time.timeZone = "Europe/Berlin";
+    services.timesyncd.servers = [ "ptbtime1.ptb.de" ];
+
+    boot.tmpOnTmpfs = true;
     services.openssh.enable = true;
 
     users.users.stefan = {
