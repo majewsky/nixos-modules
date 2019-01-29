@@ -86,6 +86,8 @@ with lib; {
         # nix1809 = import <nixos-eighteen-nine>
         #   { config = config.nixpkgs.config; };
       };
+
+      gofu = import ./pkgs/gofu/default.nix pkgs;
     };
 
     ############################################################################
@@ -96,6 +98,7 @@ with lib; {
       # TODO bootstrap-devenv
       dnsutils # dig(1), host(1)
       git
+      gofu
       gnumake # for decrypting the secrets in this repo
       gnupg   # for decrypting the secrets in this repo
       gptfdisk
