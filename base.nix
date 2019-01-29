@@ -86,16 +86,14 @@ with lib; {
         # nix1809 = import <nixos-eighteen-nine>
         #   { config = config.nixpkgs.config; };
       };
-
-      gofu = pkgs.callPackage ./pkgs/gofu/default.nix {};
     };
 
     ############################################################################
     # basic setup for interactive use
 
     environment.systemPackages = with pkgs; [
-      # TODO gofu
-      # TODO bootstrap-devenv
+      (pkgs.callPackage ./pkgs/bootstrap-devenv/default.nix {})
+      (pkgs.callPackage ./pkgs/gofu/default.nix {})
       dnsutils # dig(1), host(1)
       git
       gofu
