@@ -137,6 +137,9 @@ with lib; {
       openssh.authorizedKeys.keyFiles = [ /nix/my/unpacked/ssh-keys ];
     };
 
+    # make zsh work as a login shell; cf. https://github.com/NixOS/nixpkgs/issues/20548
+    programs.zsh.enable = true;
+
     # silence Git's complaints about missing identity
     environment.etc."gitconfig".text = ''
       [user]
