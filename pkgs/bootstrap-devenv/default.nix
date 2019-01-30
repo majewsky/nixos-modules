@@ -3,9 +3,8 @@
 stdenv.mkDerivation rec {
   name = "bootstrap-devenv";
   src = ./bootstrap-devenv.sh;
-  unpackCmd = "${coreutils}/bin/mkdir src && cp \${curSrc} src/bootstrap-devenv.sh";
 
-  builder = ./builder.sh;
+  builder = ../generic/builder-single-shellscript.sh;
   inherit coreutils;
 
   meta = with stdenv.lib; {
