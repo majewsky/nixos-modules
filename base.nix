@@ -91,6 +91,8 @@ with lib; {
     ############################################################################
     # basic setup for interactive use
 
+    system.autoUpgrade.enable = mkDefault true;
+
     environment.systemPackages = with pkgs; [
       (pkgs.callPackage ./pkgs/bootstrap-devenv/default.nix {})
       (pkgs.callPackage ./pkgs/gofu/default.nix {})
@@ -137,8 +139,13 @@ with lib; {
       openssh.authorizedKeys.keyFiles = [ /nix/my/unpacked/ssh-keys ];
     };
 
-    # make zsh work as a login shell; cf. https://github.com/NixOS/nixpkgs/issues/20548
-    programs.zsh.enable = true;
+    programs.zsh = {
+      # make zsh work as a login shell; cf. https://github.com/NixOS/nixpkgs/issues/20548
+      enable = true;
+
+      # use my own prompt
+      promptInit = "";
+    };
 
     # silence Git's complaints about missing identity
     environment.etc."gitconfig".text = ''
