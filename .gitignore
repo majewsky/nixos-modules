@@ -3,3 +3,4 @@ secrets/*
 
 # artifacts from `nixos-rebuild build`
 /result
+/nixos-modules
