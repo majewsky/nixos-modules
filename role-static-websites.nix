@@ -111,13 +111,15 @@ in {
       serviceConfig = {
         ExecStart = "${shove}/bin/shove";
         EnvironmentFile = "${secretKeyFile}";
+
+        # security hardening
         User = "shove";
         Group = "shove";
-        # WorkingDirectory = homeDir;
-        # ReadOnlyPaths = "/";
-        # ReadWritePaths = homeDir;
-        # PrivateDevices = "yes";
-        # PrivateTmp = "yes";
+        WorkingDirectory = homeDir;
+        ReadOnlyPaths = "/";
+        ReadWritePaths = homeDir;
+        PrivateDevices = "yes";
+        PrivateTmp = "yes";
       };
     };
 
