@@ -63,6 +63,7 @@ in {
       }) cfg.websites;
     };
 
+    # TODO atomic upgrades
     environment.etc."shove/pull-static-website.sh" = {
       mode = "0555";
       text = ''
@@ -121,6 +122,37 @@ in {
         PrivateDevices = "yes";
         PrivateTmp = "yes";
       };
+    };
+
+    services.nginx = {
+      enable = true;
+
+      # TODO: this part should move into some common module
+      package = pkgs.nginxMainline;
+      recommendedGzipSettings = true;
+      recommendedOptimisation = true;
+      recommendedProxySettings = true;
+      recommendedTlsSettings = true;
+
+      # TODO virtual host for proxyPass to shove
+
+      virtualHosts = mapAttrs (domainName: domainOpts: {
+        # TODO:
+        # forceSSL = true;
+        # enableACME = true;
+        # TODO: reduce logging
+        listen = [
+          { addr = "0.0.0.0"; port = 80; }
+          { addr = "[::]"; port = 80; }
+        ];
+
+        locations."/.git/".extraConfig = ''
+          deny all;
+          return 404;
+        '';
+
+        locations."/".root = "${docroot}/${domainName}";
+      }) cfg.websites;
     };
 
   };
