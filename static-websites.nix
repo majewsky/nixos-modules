@@ -1,4 +1,5 @@
 # This module is used by all machines with static websites that come from Git repos.
+# REPLACES hologram-nginx
 
 { config, pkgs, lib, ... }:
 
@@ -19,7 +20,7 @@ let
     };
   };
 
-  cfg = config.majewsky.staticWebsites;
+  cfg = config.my.services.staticweb;
 
   # things that could be options if this were to move to a generic location
   homeDir = "/var/lib/shove";
@@ -31,8 +32,8 @@ let
 
 in {
 
-  options.majewsky.staticWebsites = {
-    websites = mkOption {
+  options.my.services.staticweb = {
+    sites = mkOption {
       description = "static websites that are served from Git repos";
       example = {
         "doc.example.com" = { repositoryName = "example.com/doc-website"; };
@@ -42,7 +43,7 @@ in {
     };
   };
 
-  config = mkIf (cfg.websites != {}) {
+  config = mkIf (cfg.sites != {}) {
 
     environment.systemPackages = with pkgs; [
       shove
@@ -60,7 +61,7 @@ in {
         run = {
           command = [ "/etc/shove/pull-static-website.sh" "https://${repositoryProvider}/${repositoryName}" "${docroot}/${domainName}" ];
         };
-      }) cfg.websites;
+      }) cfg.sites;
     };
 
     # TODO atomic upgrades
@@ -124,27 +125,19 @@ in {
       };
     };
 
-    services.nginx.virtualHosts = let
+    services.nginx.virtualHosts = mapAttrs (domainName: domainOpts: {
+      forceSSL = true;
+      enableACME = true;
 
-      websiteVirtualHosts = mapAttrs (domainName: domainOpts: {
-        forceSSL = true;
-        enableACME = true;
+      locations."/.git/".extraConfig = ''
+        deny all;
+        return 404;
+      '';
 
-        locations."/.git/".extraConfig = ''
-          deny all;
-          return 404;
-        '';
+      locations."/".root = "${docroot}/${domainName}";
+    }) cfg.sites;
 
-        locations."/".root = "${docroot}/${domainName}";
-      }) cfg.websites;
-
-      shoveVirtualHosts = listToAttrs [
-        (nameValuePair config.majewsky.base.fqdn {
-          locations."/shove".proxyPass = "http://127.0.0.1:${toString shoveListenPort}";
-        })
-      ];
-
-    in websiteVirtualHosts // shoveVirtualHosts;
+    my.services.nginx.fqdnLocations."/shove".proxyPass = "http://127.0.0.1:${toString shoveListenPort}";
 
   };
 

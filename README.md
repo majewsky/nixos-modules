@@ -2,6 +2,9 @@
 
 My NixOS modules. Does not use NixOps at the moment, but probably should.
 
+As a general pattern, everything in the top-level directory gets imported by `default.nix`.
+The modules in `platforms/` only get imported on matching machines.
+
 ## Bootstrap
 
 Install NixOS according to its manual, using `bootstrap/configuration.nix`.
