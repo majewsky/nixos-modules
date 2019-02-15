@@ -138,11 +138,13 @@ in {
         locations."/".root = "${docroot}/${domainName}";
       }) cfg.websites;
 
-      shoveVirtualHost = {
-        locations."/shove".proxyPass = "http://127.0.0.1:${shoveListenPort}";
-      };
+      shoveVirtualHosts = listToAttrs [
+        (nameValuePair config.majewsky.base.fqdn {
+          locations."/shove".proxyPass = "http://127.0.0.1:${toString shoveListenPort}";
+        })
+      ];
 
-    in websiteVirtualHosts // (nameValuePair config.majewsky.base.fqdn shoveVirtualHost);
+    in websiteVirtualHosts // shoveVirtualHosts;
 
   };
 

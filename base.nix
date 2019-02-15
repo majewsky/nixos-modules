@@ -8,6 +8,7 @@
 
 let
   cfg = config.majewsky.base;
+  hasNginx = cfg.fqdn != null;
 in
 
 with lib; {
@@ -109,6 +110,7 @@ with lib; {
       jq
       lsof
       nmap # ncat(1)
+      openssl # for the openssl(1) utility tool
       pv
       ripgrep
       rsync
@@ -230,7 +232,9 @@ with lib; {
     ############################################################################
     # base nginx configuration for servers that have it
 
-    services.nginx = mkIf (config.majewsky.base.fqdn != null) {
+    networking.firewall.allowedTCPPorts = mkIf hasNginx [ 80 443 ];
+
+    services.nginx = mkIf hasNginx {
       enable = true;
 
       package = pkgs.nginxMainline;
@@ -246,11 +250,11 @@ with lib; {
         error_log stderr crit;
       '';
 
-      virtualHosts = nameValuePair config.majewsky.base.fqdn {
+      virtualHosts = listToAttrs [ (nameValuePair cfg.fqdn {
         default = true;
         forceSSL = true;
         enableACME = true;
-      };
+      }) ];
     };
 
   };
