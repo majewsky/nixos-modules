@@ -124,27 +124,11 @@ in {
       };
     };
 
-    services.nginx = {
-      enable = true;
+    services.nginx.virtualHosts = let
 
-      # TODO: this part should move into some common module
-      package = pkgs.nginxMainline;
-      recommendedGzipSettings = true;
-      recommendedOptimisation = true;
-      recommendedProxySettings = true;
-      recommendedTlsSettings = true;
-
-      # TODO virtual host for proxyPass to shove
-
-      virtualHosts = mapAttrs (domainName: domainOpts: {
-        # TODO:
-        # forceSSL = true;
-        # enableACME = true;
-        # TODO: reduce logging
-        listen = [
-          { addr = "0.0.0.0"; port = 80; }
-          { addr = "[::]"; port = 80; }
-        ];
+      websiteVirtualHosts = mapAttrs (domainName: domainOpts: {
+        forceSSL = true;
+        enableACME = true;
 
         locations."/.git/".extraConfig = ''
           deny all;
@@ -153,7 +137,12 @@ in {
 
         locations."/".root = "${docroot}/${domainName}";
       }) cfg.websites;
-    };
+
+      shoveVirtualHost = {
+        locations."/shove".proxyPass = "http://127.0.0.1:${shoveListenPort}";
+      };
+
+    in websiteVirtualHosts // (nameValuePair config.majewsky.base.fqdn shoveVirtualHost);
 
   };
 
