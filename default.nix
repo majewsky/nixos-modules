@@ -13,6 +13,7 @@ let
 in {
 
   imports = [
+    ./monitoring.nix
     ./nginx.nix
     ./static-websites.nix
     /nix/my/unpacked/generated-basic.nix # supplies config.my.machineID and config.networking.hostname

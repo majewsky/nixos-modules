@@ -48,7 +48,7 @@ in {
     ############################################################################
     # overlay network for monitoring using Wireguard
 
-    networking.wireguard.interfaces."wg-monitoring" = lib.mkIf cfg.network.enable {
+    networking.wireguard.interfaces."wg-monitoring" = lib.mkIf cfg.network.enableClient {
       ips = [ "${cfg.network.slash24}.${toString machineID}/24" ];
       peers = [{
         allowedIPs = [ "${cfg.network.slash24}.0/24" ];
