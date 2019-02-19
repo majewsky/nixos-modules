@@ -135,6 +135,19 @@ in {
       '';
 
       locations."/".root = "${docroot}/${domainName}";
+
+      extraConfig = ''
+        # recommended HTTP headers according to https://securityheaders.io
+        add_header Strict-Transport-Security "max-age=15768000; includeSubDomains" always; # six months
+        add_header X-Frame-Options "SAMEORIGIN" always;
+        add_header X-XSS-Protection "1; mode=block" always;
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header Referrer-Policy "no-referrer" always;
+        add_header Feature-Policy "accelerometer 'none', ambient-light-sensor 'none', autoplay 'none', camera 'none', document-domain 'none', encrypted-media 'none', fullscreen 'none', geolocation 'none', gyroscope 'none', magnetometer 'none', microphone 'none', midi 'none', payment 'none', picture-in-picture 'none', sync-xhr 'none', usb 'none', vibrate 'none', vr 'none'" always;
+
+        # CSP includes unsafe-inline to allow <style> tags in hand-written HTML
+        add_header Content-Security-Policy "default-src 'self' 'unsafe-inline'; img-src 'self' data:;" always;
+      '';
     }) cfg.sites;
 
     my.services.nginx.fqdnLocations."/shove".proxyPass = "http://127.0.0.1:${toString shoveListenPort}";
