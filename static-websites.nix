@@ -83,7 +83,7 @@ in {
         KEY_FILE="/nix/my/unpacked/deploy-key-''${SOURCE_NAME/\//-}"
         if [ -f "$KEY_FILE" ]; then
           SOURCE_URL="git@$SOURCE_PROVIDER:$SOURCE_NAME"
-          export GIT_SSH_COMMAND="ssh -I $KEY_FILE"
+          export GIT_SSH_COMMAND="ssh -i $KEY_FILE"
         else
           SOURCE_URL="https://$SOURCE_PROVIDER/$SOURCE_NAME"
         fi
