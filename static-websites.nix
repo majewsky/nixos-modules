@@ -18,6 +18,12 @@ let
       description = "the repository name, usually in the form owner-name/repo-name";
       type = types.str;
     };
+
+    deployKey = mkOption {
+      description = "a private SSH key that is used to clone this private repository";
+      default = null;
+      type = types.nullOr types.str;
+    };
   };
 
   cfg = config.my.services.staticweb;
@@ -59,7 +65,7 @@ in {
           { events = ["push"]; repos = [repositoryName]; }
         ];
         run = {
-          command = [ "/etc/shove/pull-static-website.sh" "https://${repositoryProvider}/${repositoryName}" "${docroot}/${domainName}" ];
+          command = [ "/etc/shove/pull-static-website.sh" repositoryProvider repositoryName "${docroot}/${domainName}" ];
         };
       }) cfg.sites;
     };
@@ -70,8 +76,18 @@ in {
       text = ''
         #!/bin/sh
         set -euo pipefail
-        SOURCE_URL="$1"
-        TARGET_DIR="$2"
+        SOURCE_PROVIDER="$1"
+        SOURCE_NAME="$2"
+        TARGET_DIR="$3"
+
+        KEY_FILE="/nix/my/unpacked/deploy-key-''${SOURCE_NAME/\//-}"
+        if [ -f "$KEY_FILE" ]; then
+          SOURCE_URL="git@$SOURCE_PROVIDER:$SOURCE_NAME"
+          export GIT_SSH_COMMAND="ssh -I $KEY_FILE"
+        else
+          SOURCE_URL="https://$SOURCE_PROVIDER/$SOURCE_NAME"
+        fi
+
         if [ -d "$TARGET_DIR" ]; then
           git -C "$TARGET_DIR" pull
         else
@@ -102,7 +118,7 @@ in {
       requires = [ "network-online.target" "shove-early.service" ];
       after = [ "network.target" "network-online.target" "shove-early.service" ];
       wantedBy = [ "multi-user.target" ];
-      restartTriggers = [ config.environment.etc."shove/shove.yaml".text ];
+      restartTriggers = [ config.environment.etc."shove/shove.yaml".source ];
       path = with pkgs; [ git shove ];
 
       environment = {
@@ -135,6 +151,9 @@ in {
       '';
 
       locations."/".root = "${docroot}/${domainName}";
+
+      # for TLDs like example.com, support the alias www.example.com
+      serverAliases = if (builtins.length (splitString "." domainName)) == 2 then [ "www.${domainName}" ] else [];
 
       extraConfig = ''
         # recommended HTTP headers according to https://securityheaders.io
