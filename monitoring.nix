@@ -12,6 +12,40 @@ let
   machineID = config.my.machineID;
   cfg = config.my.services.monitoring;
 
+  script2matrix = pkgs.callPackage ./pkgs/script2matrix/default.nix {};
+
+  health-check-script = pkgs.writeScriptBin "health-check-script" ''
+    #!/usr/bin/env bash
+
+    # until proven otherwise
+    SUCCESS=1
+
+    # check `systemctl --failed`
+    systemctl --failed | sed '/^$/,$d;/loaded units listed/,$d;1d' | cut -d' ' -f2 > /tmp/failed-units
+    if grep -q '[a-z]' /tmp/failed-units; then
+        echo ":: systemctl lists $(wc -l < /tmp/failed-units) unit(s) in an error state:"
+        cat /tmp/failed-units
+        SUCCESS=0
+    fi
+    rm -f /tmp/failed-units
+
+    # skip summary for interactive systems if no errors are occurred
+    if [ $SUCCESS = 1 ]; then
+        if systemctl show display-manager.service 2>/dev/null | grep -q 'SubState=running'; then
+            exit 0
+        fi
+    fi
+
+    # report summary
+    if [ $SUCCESS = 0 ]; then
+        echo ':: Healthcheck failed.'
+    else
+        echo ':: Healthcheck completed without errors.'
+    fi
+    echo "Uptime: $(uptime)"
+
+  '';
+
 in {
 
   imports = [
@@ -43,6 +77,19 @@ in {
 
   };
 
+  options.my.services.monitoring.matrix = {
+
+    userName = mkOption {
+      description = "user ID of Matrix user account for this machine";
+      type = types.string;
+    };
+    target = mkOption {
+      description = "Matrix room where healthcheck results shall be posted to";
+      type = types.string;
+    };
+
+  };
+
   config = {
 
     ############################################################################
@@ -69,9 +116,8 @@ in {
       interface.bind = "wg-monitoring";
       extraConfig = {
         log_level = "INFO";
-        server = mkDefault false;
         # The following extraConfig options come from a secret module:
-        #   bootstrap, datacenter, encrypt, retry_join
+        #   bootstrap, datacenter, encrypt, retry_join, server
         #   (maybe also server = true)
       };
     };
@@ -104,6 +150,28 @@ in {
         }
       }
     '';
+
+    ############################################################################
+    # daily health-check that reports to Matrix chat
+
+    systemd.services.auto-health-check = {
+      description = "daily health check that reports to Matrix chat";
+      requires = [ "network-online.target" ];
+      after = [ "network.target" "network-online.target" ];
+      path = with pkgs; [ bash script2matrix health-check-script ];
+      startAt = "6,18:00:00"; # at 06:00 and 18:00
+
+      environment = {
+        MATRIX_USER = cfg.matrix.userName;
+        MATRIX_TARGET = cfg.matrix.target;
+      };
+
+      script = "exec script2matrix health-check-script";
+
+      serviceConfig = {
+        EnvironmentFile = toString /nix/my/unpacked/generated-matrix-password;
+      };
+    };
 
   };
 
