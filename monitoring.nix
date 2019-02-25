@@ -29,6 +29,16 @@ let
     fi
     rm -f /tmp/failed-units
 
+    # check if auto-upgrade installed a kernel that is not yet booted
+    CURRENT_KERNEL="$(tr ' ' '\n' < /proc/cmdline | grep BOOT_IMAGE | sed 's,.*/nix/store/,/nix/store/,')"
+    DESIRED_KERNEL="$(readlink -f /run/current-system/kernel)"
+    if [ "$CURRENT_KERNEL" != "$DESIRED_KERNEL" ]; then
+        echo ":: Reboot is required to activate new kernel."
+        echo "current = $CURRENT_KERNEL"
+        echo "desired = $DESIRED_KERNEL"
+        SUCCESS=0
+    fi
+
     # skip summary for interactive systems if no errors are occurred
     if [ $SUCCESS = 1 ]; then
         if systemctl show display-manager.service 2>/dev/null | grep -q 'SubState=running'; then
