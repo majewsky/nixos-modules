@@ -183,6 +183,10 @@ in {
       };
     };
 
+    # health check is triggered periodically by `startAt` above, but should
+    # also report on reboot
+    systemd.timers.auto-health-check.timerConfig.OnStartupSec = "1min";
+
   };
 
 }
