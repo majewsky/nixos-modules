@@ -80,7 +80,7 @@ in {
         SOURCE_NAME="$2"
         TARGET_DIR="$3"
 
-        KEY_FILE="/nix/my/unpacked/deploy-key-''${SOURCE_NAME/\//-}"
+        KEY_FILE="${homeDir}/keys/deploy-key-''${SOURCE_NAME/\//-}"
         if [ -f "$KEY_FILE" ]; then
           SOURCE_URL="git@$SOURCE_PROVIDER:$SOURCE_NAME"
           export GIT_SSH_COMMAND="ssh -i $KEY_FILE"
@@ -109,8 +109,14 @@ in {
       description = "Pre-start script for shove.service that runs with root perms";
       serviceConfig = {
         Type = "oneshot";
-        ExecStart = "${pkgs.coreutils}/bin/chmod 0755 ${homeDir}";
       };
+
+      path = with pkgs; [ coreutils ];
+      script = ''
+        chmod 0755 ${homeDir}
+        install -d -m 0700 -o shove -g shove ${homeDir}/keys
+        install -D -m 0600 -o shove -g shove /nix/my/unpacked/deploy-key-* ${homeDir}/keys/
+      '';
     };
 
     systemd.services.shove = {
@@ -119,7 +125,7 @@ in {
       after = [ "network.target" "network-online.target" "shove-early.service" ];
       wantedBy = [ "multi-user.target" ];
       restartTriggers = [ config.environment.etc."shove/shove.yaml".source ];
-      path = with pkgs; [ git shove ];
+      path = with pkgs; [ git shove openssh ];
 
       environment = {
         SHOVE_PORT = toString shoveListenPort;
