@@ -36,6 +36,7 @@ let
 in {
 
   imports = [
+    ./archlinux-mirror.nix
     ./gitconfig.nix
     ./monitoring.nix
     ./nginx.nix
