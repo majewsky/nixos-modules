@@ -8,7 +8,30 @@ with lib;
 
 let
 
-  cfg = config.my;
+  gofu = pkgs.callPackage ./pkgs/gofu/default.nix {};
+
+  bootstrap-devenv = pkgs.writeScriptBin "bootstrap-devenv" ''
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    REPO_URL=github.com/majewsky/devenv
+    REPO_SHORT_URL=gh:majewsky/devenv
+    export GOPATH=/x
+
+    # clone devenv repo into the (not yet populated) repo tree
+    REPO_PATH="$GOPATH/src/$REPO_URL"
+    if [ ! -d "$REPO_PATH/.git" ]; then
+        git clone "https://$REPO_URL" "$REPO_PATH"
+        # this remote URL will become valid as soon as the devenv is installed
+        git -C "$REPO_PATH" remote set-url origin "$REPO_SHORT_URL"
+    fi
+
+    # run setup script for devenv
+    "$REPO_PATH/install.sh"
+
+    # add the devenv repo to the rtree index (if not done yet)
+    rtree get "$REPO_SHORT_URL" > /dev/null
+  '';
 
 in {
 
@@ -58,11 +81,11 @@ in {
     system.autoUpgrade.enable = mkDefault true;
 
     environment.systemPackages = with pkgs; [
-      (pkgs.callPackage ./pkgs/bootstrap-devenv/default.nix {})
-      (pkgs.callPackage ./pkgs/gofu/default.nix {})
+      bootstrap-devenv
       dnsutils # dig(1), host(1)
       gnumake # for decrypting the secrets in this repo
       gnupg   # for decrypting the secrets in this repo
+      gofu
       gptfdisk
       jq
       lsof

@@ -18,6 +18,5 @@ Get the machine key from `gpg --decrypt < keys.sh.gpg` in the secrets repo.
 
 ```
 cd /x/src/github.com/majewsky/nixos-modules
-make apply # asks for the machine key
-sudo nixos-rebuild switch
+make switch # asks for the machine key
 ```
