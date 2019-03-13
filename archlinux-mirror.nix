@@ -97,7 +97,6 @@ in {
       description = "sync Arch Linux package mirror";
       requires = [ "network-online.target" "archlinux-mirror-early.service" ];
       after = [ "network.target" "network-online.target" "archlinux-mirror-early.service" ];
-      wantedBy = [ "multi-user.target" ];
       path = with pkgs; [ curl rsync ];
 
       serviceConfig = {
