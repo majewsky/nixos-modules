@@ -97,7 +97,7 @@ in {
       description = "sync Arch Linux package mirror";
       requires = [ "network-online.target" "archlinux-mirror-early.service" ];
       after = [ "network.target" "network-online.target" "archlinux-mirror-early.service" ];
-      path = with pkgs; [ curl rsync ];
+      path = with pkgs; [ bash curl diffutils rsync utillinux ];
 
       serviceConfig = {
         Type = "oneshot";
@@ -130,6 +130,8 @@ in {
       locations."/".root = docroot;
 
       extraConfig = ''
+        autoindex on;
+
         # recommended HTTP headers according to https://securityheaders.io
         add_header Strict-Transport-Security "max-age=15768000; includeSubDomains" always; # six months
         add_header X-Frame-Options "SAMEORIGIN" always;
