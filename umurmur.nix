@@ -137,6 +137,8 @@ in {
       serviceConfig = {
         ExecStart = "${pkgs.umurmur}/bin/umurmurd -d -r -c ${configFile}";
       };
+
+      wantedBy = [ "multi-user.target" ];
     };
 
     # open port in firewall
