@@ -94,7 +94,7 @@ in {
     };
   };
 
-  config = mkIf (cfg.domainName != "") {
+  config = mkIf (cfg.domainName != null) {
     users.groups.umurmur = {};
     users.users.umurmur = {
       description     = "Murmur Service user";
