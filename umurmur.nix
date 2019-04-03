@@ -129,10 +129,12 @@ in {
       '';
     };
 
-    systemd.services.umurmur = {
+    systemd.services.umurmur = let
+      requires = [ "network-online.target" "umurmur-early.service" "acme-${cfg.domainName}.service" ];
+    in {
       description = "Mumble server";
-      requires = [ "network-online.target" "umurmur-early.service" ];
-      after = [ "network.target" "network-online.target" "umurmur-early.service" ];
+      requires = requires;
+      after = [ "network.target" ] ++ requires;
 
       serviceConfig = {
         ExecStart = "${pkgs.umurmur}/bin/umurmurd -d -r -c ${configFile}";
@@ -143,6 +145,7 @@ in {
 
     # open port in firewall
     networking.firewall.allowedTCPPorts = mkIf cfg.openFirewall [cfg.listenPort];
+    networking.firewall.allowedUDPPorts = mkIf cfg.openFirewall [cfg.listenPort];
 
   };
 
