@@ -1,7 +1,7 @@
 # This module deploys a static Grafana installation that pulls data from Prometheus.
 # REPLACES hologram-monitoring-server (partially)
 
-{ config, pkgs, lib }:
+{ config, pkgs, lib, ... }:
 
 with lib;
 
@@ -10,9 +10,28 @@ let
   cfg = config.my.services.grafana;
   internalListenPort = 28563;
 
+  dashboardsDir = pkgs.writeTextFile {
+    name = "grafana-dashboards";
+    destination = "/dashboards.yaml";
+    text = ''
+      apiVersion: 1
+
+      providers:
+      - name: default
+        orgId: 1
+        folder: ""
+        type: file
+        disableDeletion: false
+        updateIntervalSeconds: 60 # how often Grafana will scan for changed dashboards
+        options:
+          path: /x/src/github.com/majewsky/nixos-modules/grafana-dashboards
+    '';
+    # TODO: the path in /x/src is not readable for the grafana user
+  };
+
   datasourcesDir = pkgs.writeTextFile {
     name = "grafana-datasources";
-    destination = "prometheus.yaml";
+    destination = "/prometheus.yaml";
     text = ''
       apiVersion: 1
       deleteDatasources:
@@ -30,7 +49,7 @@ let
 
   provisioningDir = pkgs.linkFarm "grafana-provisioning" [
     { path = toString datasourcesDir; name = "datasources"; }
-    { path = "/x/src/github.com/majewsky/nixos-modules/grafana-dashboards"; name = "dashboards"; }
+    { path = toString dashboardsDir; name = "dashboards"; }
   ];
 
 in {
@@ -69,7 +88,7 @@ in {
 
         SECURITY_ADMIN_USER = "admin";
         SECURITY_ADMIN_PASSWORD = cfg.adminPassword;
-        SECURITY_DISABLE_GRAVATAR = true;
+        SECURITY_DISABLE_GRAVATAR = "true";
         SECURITY_DATA_SOURCE_PROXY_WHITELIST = cfg.prometheusHost;
 
         SESSION_PROVIDER = "memory";

@@ -38,6 +38,7 @@ in {
   imports = [
     ./archlinux-mirror.nix
     ./gitconfig.nix
+    ./grafana.nix
     ./monitoring.nix
     ./nginx.nix
     ./static-websites.nix
