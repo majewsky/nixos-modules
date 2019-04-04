@@ -10,8 +10,11 @@ let
   cfg = config.my.services.grafana;
   internalListenPort = 28563;
 
-  dashboardsDir = pkgs.writeTextFile {
-    name = "grafana-dashboards";
+  # copy the entire ./grafana-dashboards directory into the /nix/store.
+  dashboardsDir = builtins.path { path = ./grafana-dashboards; name = "grafana-dashboards"; };
+
+  dashboardsConfigDir = pkgs.writeTextFile {
+    name = "grafana-provisioning-dashboards";
     destination = "/dashboards.yaml";
     text = ''
       apiVersion: 1
@@ -24,13 +27,12 @@ let
         disableDeletion: false
         updateIntervalSeconds: 60 # how often Grafana will scan for changed dashboards
         options:
-          path: /x/src/github.com/majewsky/nixos-modules/grafana-dashboards
+          path: ${dashboardsDir}
     '';
-    # TODO: the path in /x/src is not readable for the grafana user
   };
 
-  datasourcesDir = pkgs.writeTextFile {
-    name = "grafana-datasources";
+  datasourcesConfigDir = pkgs.writeTextFile {
+    name = "grafana-provisioning-datasources";
     destination = "/prometheus.yaml";
     text = ''
       apiVersion: 1
@@ -48,8 +50,8 @@ let
   };
 
   provisioningDir = pkgs.linkFarm "grafana-provisioning" [
-    { path = toString datasourcesDir; name = "datasources"; }
-    { path = toString dashboardsDir; name = "dashboards"; }
+    { path = toString datasourcesConfigDir; name = "datasources"; }
+    { path = toString dashboardsConfigDir; name = "dashboards"; }
   ];
 
 in {
