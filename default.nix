@@ -139,6 +139,7 @@ in {
 
     # workaround for https://github.com/NixOS/nixpkgs/issues/47580 which will
     # be fixed in 19.03
+    # TODO 19.03 remove after upgrading everyone
     networking.firewall.interfaces.default = mkIf (config.system.stateVersion == "18.09") {
       allowedTCPPorts      = config.networking.firewall.allowedTCPPorts;
       allowedTCPPortRanges = config.networking.firewall.allowedTCPPortRanges;

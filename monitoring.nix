@@ -121,7 +121,7 @@ in {
     # Consul for service discovery within the monitoring network
 
     services.consul = {
-      package = pkgs.channels.unstable.consul;
+      package = mkIf (config.system.stateVersion == "18.09") pkgs.channels.unstable.consul;
       enable = true;
       interface.bind = "wg-monitoring";
       extraConfig = {
