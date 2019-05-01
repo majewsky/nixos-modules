@@ -39,6 +39,7 @@ in {
     ./archlinux-mirror.nix
     ./gitconfig.nix
     ./grafana.nix
+    ./minecraft-server.nix
     ./monitoring.nix
     ./nginx.nix
     ./static-websites.nix

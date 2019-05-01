@@ -1,4 +1,3 @@
-#!/bin/bash
 set -euo pipefail
 
 SERVER_ROOT="$HOME/servers"
