@@ -31,7 +31,7 @@ in {
       createHome = true;
       shell = "${minecraftShell}/bin/minecraft-shell";
       openssh.authorizedKeys.keyFiles = [ /nix/my/unpacked/ssh-keys-minecraft ];
-      packages = [ pkgs.jre8_headless ];
+      packages = [ pkgs.jre8 ];
     };
 
     networking.firewall.allowedTCPPorts = [ 25565 ];
@@ -51,7 +51,7 @@ in {
       description = "Minecraft server";
       after = [ "network-online.target" ];
       wants = [ "network-online.target" ];
-      path = [ pkgs.jre8_headless ];
+      path = [ pkgs.jre8 ];
 
       serviceConfig = {
         OOMScoreAdjust = "1000";
