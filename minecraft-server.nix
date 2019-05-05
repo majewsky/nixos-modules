@@ -7,7 +7,8 @@ let
   cfg = config.my.services.minecraft;
 
   minecraftShell = pkgs.writeScriptBin "minecraft-shell" ''
-    #!${pkgs.bashInteractive}/bin/bash -i
+    #!${pkgs.bashInteractive}/bin/bash
+    source /etc/profile
     ${builtins.readFile ./pkgs/minecraft-shell.sh}
   '';
 
@@ -30,6 +31,7 @@ in {
       createHome = true;
       shell = "${minecraftShell}/bin/minecraft-shell";
       openssh.authorizedKeys.keyFiles = [ /nix/my/unpacked/ssh-keys-minecraft ];
+      packages = [ pkgs.jre8_headless ];
     };
 
     networking.firewall.allowedTCPPorts = [ 25565 ];
@@ -49,6 +51,7 @@ in {
       description = "Minecraft server";
       after = [ "network-online.target" ];
       wants = [ "network-online.target" ];
+      path = [ pkgs.jre8_headless ];
 
       serviceConfig = {
         OOMScoreAdjust = "1000";
@@ -57,7 +60,7 @@ in {
       scriptArgs = ''"%i"'';
       script = ''
         set -euo pipefail
-        cd "$HOME/servers/$1/Server\ Files"
+        cd "$HOME/servers/$1/Server Files"
         source ServerStart.sh
       '';
 
