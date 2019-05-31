@@ -82,6 +82,10 @@ in {
     # basic setup for interactive use
 
     system.autoUpgrade.enable = mkDefault true;
+    nix.gc = {
+      automatic = mkDefault true;
+      options = "--delete-older-than 3d";
+    };
 
     environment.systemPackages = with pkgs; [
       bootstrap-devenv
