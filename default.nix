@@ -43,6 +43,7 @@ in {
     ./minecraft-server.nix
     ./monitoring.nix
     ./nginx.nix
+    ./plain-websites.nix
     ./static-websites.nix
     ./umurmur.nix
     /nix/my/unpacked/generated-basic.nix # supplies config.my.machineID and config.networking.hostname
