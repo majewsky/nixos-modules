@@ -26,10 +26,11 @@ in {
       path = [ pkgs.borgbackup pkgs.openssh pkgs.coreutils ];
       script = ''
         borg create -s --one-file-system \
-          --exclude /x --exclude /nix --exclude /var/log/journal --exclude-caches \
+          --exclude /x --exclude /nix --exclude /boot \
+          --exclude /var/log/journal --exclude /root/.cache --exclude-caches \
           --compression auto,lzma \
           --rsh "ssh -i /nix/my/unpacked/borgbackup-ssh-key" \
-          --remote-ratelimit 1024 \
+          --remote-ratelimit 10240 \
           "borgrecv@${cfg.targetHost}:/var/lib/borgrecv/repo/${config.networking.hostName}::{utcnow:%Y-%m-%dT%H:%M:%SZ}" /
       '';
       environment = {
