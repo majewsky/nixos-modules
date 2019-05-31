@@ -9,24 +9,40 @@ let
 
   cfg = config.my.services.plainweb;
 
+  optionsPerWebsite = {
+    docroot = mkOption {
+      description = "the directory where the website contents are stored";
+      type = types.str;
+    };
+
+    directoryListings = mkOption {
+      description = "whether to generate directory listings";
+      default = true;
+      type = types.bool;
+    };
+  };
+
 in {
 
   options.my.services.plainweb.sites = mkOption {
-    description = "static websites that are served from Git repos";
+    description = "static websites that are NOT served from Git repos";
     example = {
-      "doc.example.com" = "/var/lib/example.com";
+      "doc.example.com" = {
+        docroot = "/var/lib/example.com";
+        directoryListings = true;
+      };
     };
     default = {};
-    type = types.attrsOf types.str;
+    type = with types; attrsOf (submodule { options = optionsPerWebsite; });
   };
 
   config = mkIf (cfg.sites != {}) {
 
-    services.nginx.virtualHosts = mapAttrs (domainName: docroot: {
+    services.nginx.virtualHosts = mapAttrs (domainName: domainOpts: {
       forceSSL = true;
       enableACME = true;
 
-      locations."/".root = "${docroot}";
+      locations."/".root = "${domainOpts.docroot}";
 
       # for TLDs like example.com, support the alias www.example.com
       serverAliases = if (builtins.length (splitString "." domainName)) == 2 then [ "www.${domainName}" ] else [];
@@ -42,6 +58,8 @@ in {
 
         # CSP includes unsafe-inline to allow <style> tags in hand-written HTML
         add_header Content-Security-Policy "default-src 'self' 'unsafe-inline'; img-src 'self' data:;" always;
+
+        ${optionalString domainOpts.directoryListings "autoindex on;"}
       '';
     }) cfg.sites;
 
