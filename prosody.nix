@@ -23,6 +23,8 @@ in {
 
   config = mkIf (cfg.domainName != null) {
 
+    networking.firewall.allowedTCPPorts = [ 5222 5269 ]; # xmpp-client and xmpp-server
+
     services.prosody = {
       admins = [ "stefan@${cfg.domainName}" ];
       enable = true;

@@ -16,6 +16,8 @@ in {
   # - config.services.matrix-synapse.macaroon_secret_key
   config = mkIf (cfg.macaroon_secret_key != null) {
 
+    networking.firewall.allowedTCPPorts = [ 8448 ];
+
     services.nginx.virtualHosts.${cfg.server_name} = {
       forceSSL = true;
       enableACME = true;
