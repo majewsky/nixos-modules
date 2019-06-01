@@ -29,6 +29,7 @@ in {
 
     services.matrix-synapse = {
       database_type = "sqlite3";
+      enable = true;
 
       listeners = [
         {
