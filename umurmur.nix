@@ -8,7 +8,6 @@ let
 
   cfg = config.my.services.umurmur;
 
-  # TODO: convert replicator -> nix templates
   configFile = pkgs.writeText "umurmurd.conf" ''
     max_bandwidth = 72000;
     welcometext   = "${cfg.welcomeText}";
@@ -113,7 +112,7 @@ in {
       '';
     });
     security.acme.certs = setAttrByPath [cfg.domainName] {
-      postRun = "systemctl restart umurmur.service";
+      postRun = "systemctl restart umurmur-early.service umurmur.service";
     };
 
     # umurmur.service runs with limited privileges and cannot access the TLS
