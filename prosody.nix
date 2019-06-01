@@ -37,6 +37,9 @@ in {
         ssl.cert = "/var/lib/prosody/tls.crt";
         ssl.key = "/var/lib/prosody/tls.key";
       };
+      extraConfig = ''
+        authentication = "internal_hashed";
+      '';
     };
 
     # to get an ACME cert, we need to add a dummy vhost to the nginx config
