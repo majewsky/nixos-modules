@@ -47,12 +47,12 @@ in {
         error_log stderr crit;
       '';
 
-      virtualHosts = listToAttrs [ (nameValuePair cfg.fqdn {
+      virtualHosts."${cfg.fqdn}" = {
         default = true;
         forceSSL = true;
         enableACME = true;
         locations = cfg.fqdnLocations;
-      }) ];
+      };
     };
 
   };
