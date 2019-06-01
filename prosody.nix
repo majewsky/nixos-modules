@@ -31,6 +31,7 @@ in {
       s2sSecureAuth = true;
       virtualHosts.${cfg.domainName} = {
         domain = cfg.domainName;
+        enabled = true;
         ssl.cert = "/var/lib/prosody/tls.crt";
         ssl.key = "/var/lib/prosody/tls.key";
       };
