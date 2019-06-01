@@ -103,7 +103,7 @@ in {
       };
     };
 
-    services.nginx.virtualHosts = setAttrByPath [cfg.domainName] {
+    services.nginx.virtualHosts.${cfg.domainName} = {
       forceSSL = true;
       enableACME = true;
 
