@@ -40,7 +40,6 @@ in {
     ./borgbackup-sender.nix
     ./gitconfig.nix
     ./grafana.nix
-    ./matrix-announce.nix
     ./matrix-synapse.nix
     ./minecraft-server.nix
     ./monitoring.nix

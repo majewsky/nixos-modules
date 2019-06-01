@@ -12,11 +12,20 @@ let
 in {
 
   # To enable this module, the machine's configuration.nix must set:
-  # - config.services.matrix-synapse.server_name (the vanity domain name)
+  # - config.services.matrix-synapse.server_name
   # - config.services.matrix-synapse.macaroon_secret_key
   config = mkIf (cfg.macaroon_secret_key != null) {
 
-    my.services.nginx.fqdnLocations."/_matrix".proxyPass = "http://[::1]:8008";
+    services.nginx.virtualHosts.${cfg.server_name} = {
+      forceSSL = true;
+      enableACME = true;
+      listen = [
+        { addr = "[::]"; port = 443; ssl = true; }
+        { addr = "[::]"; port = 8448; ssl = true; }
+      ];
+
+      locations."/_matrix".proxyPass = "http://[::1]:8008";
+    };
 
     services.matrix-synapse = {
       database_type = "sqlite3";
@@ -34,10 +43,6 @@ in {
 
       allow_guest_access = false;
       enable_registration = false;
-
-      # NOTE to self:
-      # - /data/synapse/media_store becomes /var/lib/matrix-synapse/media WITHOUT `_store`
-      # - /data/synapse/signing.key becomes /var/lib/matrix-synapse/homeserver.signing.key
     };
 
   };
