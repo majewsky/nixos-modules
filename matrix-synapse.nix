@@ -22,8 +22,12 @@ in {
       forceSSL = true;
       enableACME = true;
       listen = [
-        { addr = "[::]"; port = 443; ssl = true; }
-        { addr = "[::]"; port = 8448; ssl = true; }
+        { addr = "[::]";    port = 80;   ssl = false; }
+        { addr = "0.0.0.0"; port = 80;   ssl = false; }
+        { addr = "[::]";    port = 443;  ssl = true; }
+        { addr = "0.0.0.0"; port = 443;  ssl = true; }
+        { addr = "[::]";    port = 8448; ssl = true; }
+        { addr = "0.0.0.0"; port = 8448; ssl = true; }
       ];
 
       locations."/_matrix".proxyPass = "http://[::1]:8008";
