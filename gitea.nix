@@ -14,16 +14,14 @@ in {
   config = mkIf cfg.enable {
 
     services.gitea = {
-      enable = true;
-
       disableRegistration = true;
 
       rootUrl = "https://${cfg.domain}/";
-      httpAddress = "::1";
+      httpAddress = "127.0.0.1";
       httpPort = internalListenPort;
 
       log.level = "Info";
-      log.rootPath = "/var/log/gitea";
+      log.rootPath = "/var/lib/gitea/log"; # TODO should be /var/log/gitea, but the NixOS module for Gitea does not set that path up
 
       # security/privacy hardening
       extraConfig = ''
@@ -55,7 +53,7 @@ in {
       forceSSL = true;
       enableACME = true;
 
-      locations."/".proxyPass = "http://[::1]:${toString internalListenPort}/";
+      locations."/".proxyPass = "http://127.0.0.1:${toString internalListenPort}/";
 
       extraConfig = ''
         # recommended HTTP headers according to https://securityheaders.io
