@@ -39,6 +39,7 @@ in {
     ./archlinux-mirror.nix
     ./borgbackup-sender.nix
     ./gitconfig.nix
+    ./gitea.nix
     ./grafana.nix
     ./matrix-synapse.nix
     ./minecraft-server.nix
