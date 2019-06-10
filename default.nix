@@ -148,6 +148,11 @@ in {
       promptInit = "";
     };
 
+    # limit disk usage of persistent syslog
+    services.journald.extraConfig = ''
+      SystemMaxUse=512M
+    '';
+
   };
 
 }
