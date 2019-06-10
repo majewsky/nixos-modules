@@ -7,6 +7,36 @@ with lib;
 
 let
 
+  pull-repo-sh = pkgs.writeScript "shove-pull-repo.sh" ''
+    #!/bin/sh
+    set -euo pipefail
+    SOURCE_PROVIDER="$1"
+    SOURCE_NAME="$2"
+    CHECKOUT_DIR="$3"
+
+    KEY_FILE="${homeDir}/keys/deploy-key-''${SOURCE_NAME/\//-}"
+    if [ -f "$KEY_FILE" ]; then
+      SOURCE_URL="git@$SOURCE_PROVIDER:$SOURCE_NAME"
+      export GIT_SSH_COMMAND="ssh -i $KEY_FILE"
+    else
+      SOURCE_URL="https://$SOURCE_PROVIDER/$SOURCE_NAME"
+    fi
+
+    if [ -d "$CHECKOUT_DIR" ]; then
+      git -C "$CHECKOUT_DIR" pull
+    else
+      git clone "$SOURCE_URL" "$CHECKOUT_DIR"
+    fi
+  '';
+
+  link-repo-sh = pkgs.writeScript "shove-link-repo.sh" ''
+    #!/bin/sh
+    set -euo pipefail
+    CHECKOUT_DIR="$1"
+    TARGET_DIR="$2"
+    ln -sTf "''$(readlink -f "$CHECKOUT_DIR")" "$TARGET_DIR"
+  '';
+
   optionsPerWebsite = {
     repositoryProvider = mkOption {
       description = "the hostname where the repository is stored";
@@ -23,6 +53,12 @@ let
       description = "a private SSH key that is used to clone this private repository";
       default = null;
       type = types.nullOr types.str;
+    };
+
+    buildCommand = mkOption {
+      description = "path to alternate build script, invoked with arguments: repository directory, target directory";
+      default = toString link-repo-sh;
+      type = types.str;
     };
   };
 
@@ -58,42 +94,24 @@ in {
 
     # note that JSON is a subset of YAML
     environment.etc."shove/shove.yaml".text = builtins.toJSON {
-      actions = mapAttrsToList (domainName: { repositoryProvider, repositoryName, ... }: {
+      actions = mapAttrsToList (domainName: { repositoryProvider, repositoryName, buildCommand, ... }: {
         name = "pull ${repositoryProvider}/${repositoryName} into ${docroot}/${domainName}";
         on = [
           { events = ["shove-startup"]; }
           { events = ["push"]; repos = [repositoryName]; }
         ];
         run = {
-          command = [ "/etc/shove/pull-static-website.sh" repositoryProvider repositoryName "${docroot}/${domainName}" ];
+          command = [
+            "/bin/sh" "-c"
+            ''"${pull-repo-sh}" "$1" "$2" "$3" && "${buildCommand}" "$3" "$4"''
+            "shove-update-${domainName}"        # this is $0
+            repositoryProvider
+            repositoryName
+            "${homeDir}/checkout/${domainName}" # Git repo directory
+            "${docroot}/${domainName}"          # target directory
+          ];
         };
       }) cfg.sites;
-    };
-
-    # TODO atomic upgrades
-    environment.etc."shove/pull-static-website.sh" = {
-      mode = "0555";
-      text = ''
-        #!/bin/sh
-        set -euo pipefail
-        SOURCE_PROVIDER="$1"
-        SOURCE_NAME="$2"
-        TARGET_DIR="$3"
-
-        KEY_FILE="${homeDir}/keys/deploy-key-''${SOURCE_NAME/\//-}"
-        if [ -f "$KEY_FILE" ]; then
-          SOURCE_URL="git@$SOURCE_PROVIDER:$SOURCE_NAME"
-          export GIT_SSH_COMMAND="ssh -i $KEY_FILE"
-        else
-          SOURCE_URL="https://$SOURCE_PROVIDER/$SOURCE_NAME"
-        fi
-
-        if [ -d "$TARGET_DIR" ]; then
-          git -C "$TARGET_DIR" pull
-        else
-          git clone "$SOURCE_URL" "$TARGET_DIR"
-        fi
-      '';
     };
 
     users.groups.shove = {};
