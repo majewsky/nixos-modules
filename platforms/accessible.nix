@@ -33,7 +33,7 @@
 
     # systemd-journald: volatile storage plus forwarding to tty12
     services.journald = {
-      console = 'tty12';
+      console = "tty12";
       extraConfig = ''
         MaxLevelConsole=info
         Storage=volatile
@@ -41,11 +41,6 @@
       '';
     };
 
-    # Git identity
-    majewsky.git = {
-      userName = "Stefan Majewsky";
-      userEMail = "majewsky@gmx.net";
-    };
   };
 
 }
