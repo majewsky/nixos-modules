@@ -49,6 +49,7 @@ in {
     ./prosody.nix
     ./static-websites.nix
     ./umurmur.nix
+    ./vt6-website.nix
     /nix/my/unpacked/generated-basic.nix # supplies config.my.machineID and config.networking.hostname
   ];
 
