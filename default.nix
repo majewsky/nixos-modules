@@ -96,6 +96,7 @@ in {
     environment.systemPackages = with pkgs; [
       bootstrap-devenv
       dnsutils # dig(1), host(1)
+      file
       gnumake # for decrypting the secrets in this repo
       gnupg   # for decrypting the secrets in this repo
       gofu
