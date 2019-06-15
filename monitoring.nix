@@ -131,7 +131,7 @@ in {
       privateKeyFile = toString /nix/my/unpacked/generated-wg-monitoring-key;
     };
 
-    networking.firewall.allowedTCPPorts = mkIf isServer [ cfg.network.server.listenPort ];
+    networking.firewall.allowedUDPPorts = mkIf isServer [ cfg.network.server.listenPort ];
 
     # enable peers to talk to each other over the monitoring network
     networking.firewall.extraCommands = mkIf isServer ''
