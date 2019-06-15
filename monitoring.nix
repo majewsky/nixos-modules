@@ -2,6 +2,7 @@
 # service discovery within the monitoring network.
 # REPLACES hologram-monitoring-agents
 # REPLACES hologram-monitoring-client
+# REPLACES hologram-monitoring-server
 
 { config, pkgs, lib, ... }:
 
@@ -56,45 +57,48 @@ let
 
   '';
 
+  isServer = cfg.network.server.clients != [];
+  isClient = !isServer;
+
 in {
 
   imports = [
     /nix/my/unpacked/generated-wg-monitoring.nix # supplies config.my.services.monitoring
   ];
 
-  options.my.services.monitoring.network = {
+  options = let
+    mkStrOpt = description: mkOption { inherit description; type = types.str; };
+  in {
 
-    enableClient = mkOption {
-      default = false;
-      description = "whether to set up the wg-monitoring interface with the client configuration";
-      type = types.bool;
+    my.services.monitoring.network = {
+      slash24 = mkStrOpt "network part of wg-monitoring interface address";
+
+      client = {
+        serverEndpoint  = mkStrOpt "host:port address of wg-monitoring server";
+        serverPublicKey = mkStrOpt "public key of wg-monitoring server";
+      };
+
+      server = {
+        clients = let
+          optsPerClient = {
+            publicKey = mkStrOpt "public key of this client";
+            ipAddress = mkStrOpt "IP address of this client";
+          };
+        in mkOption {
+          description = "known clients for this wg-monitoring server";
+          default = [];
+          type = with types; listOf (submodule { options = optsPerClient; });
+        };
+        listenPort = mkOption {
+          description = "listen port of wg-monitoring server";
+          type = types.ints.u16;
+        };
+      };
     };
 
-    slash24 = mkOption {
-      description = "network part of wg-monitoring interface address";
-      type = types.string;
-    };
-
-    server.endpoint = mkOption {
-      description = "host:port address of wg-monitoring server";
-      type = types.string;
-    };
-    server.publicKey = mkOption {
-      description = "public key of wg-monitoring server";
-      type = types.string;
-    };
-
-  };
-
-  options.my.services.monitoring.matrix = {
-
-    userName = mkOption {
-      description = "user ID of Matrix user account for this machine";
-      type = types.string;
-    };
-    target = mkOption {
-      description = "Matrix room where healthcheck results shall be posted to";
-      type = types.string;
+    my.services.monitoring.matrix = {
+      userName = mkStrOpt "user ID of Matrix user account for this machine";
+      target   = mkStrOpt "Matrix room where healthcheck results shall be posted to";
     };
 
   };
@@ -104,17 +108,35 @@ in {
     ############################################################################
     # overlay network for monitoring using Wireguard
 
-    networking.wireguard.interfaces."wg-monitoring" = lib.mkIf cfg.network.enableClient {
-      ips = [ "${cfg.network.slash24}.${toString machineID}/24" ];
-      peers = [{
+    networking.wireguard.interfaces."wg-monitoring" = let
+      ownIP = "${cfg.network.slash24}.${toString machineID}";
+    {
+      listenPort = mkIf isServer cfg.network.server.listenPort;
+      ips = [ "${ownIP}/24" ];
+      peers = if isClient then [{
+        # for clients: only one peer (the server)
         allowedIPs = [ "${cfg.network.slash24}.0/24" ];
-        endpoint = "${cfg.network.server.endpoint}";
-        publicKey = "${cfg.network.server.publicKey}";
+        endpoint = "${cfg.network.client.serverEndpoint}";
+        publicKey = "${cfg.network.client.serverPublicKey}";
         presharedKeyFile = toString /nix/my/unpacked/generated-wg-monitoring-psk;
         persistentKeepalive = 25;
-      }];
+      }] else [
+        # for the server: lots of peers (all clients)
+        map (clientOpts: {
+          allowedIPs = [ "${clientOpts.ipAddress}/32" ];
+          publicKey = "${clientOpts.publicKey}";
+          presharedKeyFile = toString /nix/my/unpacked/generated-wg-monitoring-psk;
+        }) filter (clientOpts: clientOpts.ipAddress != ownIP) cfg.network.server.clients
+      ];
       privateKeyFile = toString /nix/my/unpacked/generated-wg-monitoring-key;
     };
+
+    networking.firewall.allowedTCPPorts = mkIf isServer [ cfg.network.server.listenPort ];
+
+    # enable peers to talk to each other over the monitoring network
+    networking.firewall.extraCommands = mkIf isServer [
+      "iptables -A FORWARD -i wg-monitoring -o wg-monitoring -j ACCEPT"
+    ];
 
     ############################################################################
     # Consul for service discovery within the monitoring network
@@ -125,8 +147,11 @@ in {
       extraConfig = {
         log_level = "INFO";
         # The following extraConfig options come from a secret module:
-        #   bootstrap, datacenter, encrypt, retry_join, server
-        #   (maybe also server = true)
+        #   bootstrap  = true/false
+        #   datacenter = "..."
+        #   encrypt    = "..."
+        #   retry_join = [...]
+        #   server     = true/false
       };
     };
 
@@ -147,7 +172,6 @@ in {
       firewallFilter = "-i wg-monitoring -p tcp -m tcp --dport 9100";
     };
 
-    # TODO add this to systemd.services.consul.restartTriggers
     environment.etc."consul.d/prometheus-node-exporter.json".text = ''
       {
         "service": {
@@ -158,6 +182,9 @@ in {
         }
       }
     '';
+    systemd.services.consul.restartTriggers = [
+      config.environment.etc."consul.d/prometheus-node-exporter.json".source
+    ];
 
     ############################################################################
     # daily health-check that reports to Matrix chat
