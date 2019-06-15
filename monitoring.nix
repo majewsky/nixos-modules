@@ -59,7 +59,6 @@ let
 in {
 
   imports = [
-    /nix/my/unpacked/generated-consul.nix        # supplies more services.consul.extraConfig
     /nix/my/unpacked/generated-wg-monitoring.nix # supplies config.my.services.monitoring
   ];
 
