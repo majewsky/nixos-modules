@@ -110,7 +110,7 @@ in {
 
     networking.wireguard.interfaces."wg-monitoring" = let
       ownIP = "${cfg.network.slash24}.${toString machineID}";
-    {
+    in {
       listenPort = mkIf isServer cfg.network.server.listenPort;
       ips = [ "${ownIP}/24" ];
       peers = if isClient then [{
@@ -120,23 +120,23 @@ in {
         publicKey = "${cfg.network.client.serverPublicKey}";
         presharedKeyFile = toString /nix/my/unpacked/generated-wg-monitoring-psk;
         persistentKeepalive = 25;
-      }] else [
+      }] else (
         # for the server: lots of peers (all clients)
         map (clientOpts: {
           allowedIPs = [ "${clientOpts.ipAddress}/32" ];
-          publicKey = "${clientOpts.publicKey}";
+          publicKey = clientOpts.publicKey;
           presharedKeyFile = toString /nix/my/unpacked/generated-wg-monitoring-psk;
-        }) filter (clientOpts: clientOpts.ipAddress != ownIP) cfg.network.server.clients
-      ];
+        }) (filter (clientOpts: clientOpts.ipAddress != ownIP) cfg.network.server.clients)
+      );
       privateKeyFile = toString /nix/my/unpacked/generated-wg-monitoring-key;
     };
 
     networking.firewall.allowedTCPPorts = mkIf isServer [ cfg.network.server.listenPort ];
 
     # enable peers to talk to each other over the monitoring network
-    networking.firewall.extraCommands = mkIf isServer [
-      "iptables -A FORWARD -i wg-monitoring -o wg-monitoring -j ACCEPT"
-    ];
+    networking.firewall.extraCommands = mkIf isServer ''
+      iptables -A FORWARD -i wg-monitoring -o wg-monitoring -j ACCEPT
+    '';
 
     ############################################################################
     # Consul for service discovery within the monitoring network
