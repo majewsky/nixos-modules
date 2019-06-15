@@ -129,12 +129,15 @@ in {
         }) (filter (clientOpts: clientOpts.ipAddress != ownIP) cfg.network.server.clients)
       );
       privateKeyFile = toString /nix/my/unpacked/generated-wg-monitoring-key;
+      postSetup = mkIf isServer "${pkgs.procps}/bin/sysctl net.ipv4.conf.wg-monitoring.forwarding=1";
     };
 
     networking.firewall.allowedUDPPorts = mkIf isServer [ cfg.network.server.listenPort ];
 
     # enable peers to talk to each other over the monitoring network
     networking.firewall.extraCommands = mkIf isServer ''
+      iptables -A FORWARD -m state --state INVALID -j DROP
+      iptables -A FORWARD -m state --state RELATED,ESTABLISHED -j ACCEPT
       iptables -A FORWARD -i wg-monitoring -o wg-monitoring -j ACCEPT
     '';
 
