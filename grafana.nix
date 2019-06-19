@@ -107,7 +107,7 @@ in {
       forceSSL = true;
       enableACME = true;
 
-      locations."/".proxyPass = "http://localhost:${toString internalListenPort}/";
+      locations."/".proxyPass = "http://127.0.0.1:${toString internalListenPort}/";
 
       extraConfig = ''
         # recommended HTTP headers according to https://securityheaders.io
