@@ -46,6 +46,7 @@ in {
     ./monitoring.nix
     ./nginx.nix
     ./plain-websites.nix
+    ./portunus.nix
     ./prometheus.nix
     ./prosody.nix
     ./static-websites.nix
