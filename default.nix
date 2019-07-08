@@ -41,12 +41,13 @@ in {
     ./gitconfig.nix
     ./gitea.nix
     ./grafana.nix
+    ./ldap-client.nix
+    ./ldap-server.nix
     ./matrix-synapse.nix
     ./minecraft-server.nix
     ./monitoring.nix
     ./nginx.nix
     ./plain-websites.nix
-    ./portunus.nix
     ./prometheus.nix
     ./prosody.nix
     ./static-websites.nix
