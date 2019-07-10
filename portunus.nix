@@ -1,6 +1,7 @@
 # This module contains the parts of the Portunus configuration that can be
 # upstreamed into nixpkgs.
 # TODO upstream this into nixpkgs
+# TODO options for TLS (ACME support?)
 
 { config, lib, pkgs, ... }:
 
