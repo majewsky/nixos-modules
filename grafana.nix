@@ -62,7 +62,7 @@ let
     port = 636
     use_ssl = true
 
-    bind_dn = "${config.my.ldap.searchUserName}"
+    bind_dn = "uid=${config.my.ldap.searchUserName},ou=users,${config.my.ldap.suffix}"
     bind_password = """${config.my.ldap.searchUserPassword}"""
 
     search_filter = "(uid=%s)"
