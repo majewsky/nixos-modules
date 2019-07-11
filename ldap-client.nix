@@ -9,18 +9,26 @@ let
 
 in {
 
-  # NOTE: the domainName and suffix options are also consumed by other modules
   options.my.ldap = {
     ipAddress = mkOption {
       description = "IP address of LDAP server";
       type = types.str;
     };
+    # NOTE: The following options are also consumed by other modules.
     domainName = mkOption {
       description = "domain name of LDAP server";
       type = types.str;
     };
     suffix = mkOption {
       description = "root DN suffix of LDAP server";
+      type = types.str;
+    };
+    searchUserName = mkOption {
+      description = "DN of search user";
+      type = types.str;
+    };
+    searchUserPassword = mkOption {
+      description = "password of search user";
       type = types.str;
     };
   };

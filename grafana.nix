@@ -56,6 +56,35 @@ let
     { path = toString dashboardsConfigDir; name = "dashboards"; }
   ];
 
+  ldapConfigFile = pkgs.writeText "grafana-ldap.toml" ''
+    [[servers]]
+    host = "${config.my.ldap.domainName}"
+    port = 636
+    use_ssl = true
+
+    bind_dn = "${config.my.ldap.searchUserName}"
+    bind_password = """${config.my.ldap.searchUserPassword}"""
+
+    search_filter = "(uid=%s)"
+    search_base_dns = ["ou=users,${config.my.ldap.suffix}"]
+
+    [servers.attributes]
+    name = "givenName"
+    surname = "sn"
+    username = "uid"
+    member_of = "isMemberOf"
+    # email = ""
+
+    [[servers.group_mappings]]
+    group_dn = "cn=grafana-admins,ou=groups,${config.my.ldap.suffix}"
+    org_role = "Admin"
+    grafana_admin = true
+
+    [[servers.group_mappings]]
+    group_dn = "*"
+    org_role = "Viewer"
+  '';
+
 in {
 
   options.my.services.grafana = {
@@ -83,6 +112,7 @@ in {
       rootUrl = "https://${cfg.domainName}/";
 
       analytics.reporting.enable = false;
+      auth.anonymous.enable = false;
 
       extraOptions = {
         LOG_MODE = "console";
@@ -100,6 +130,10 @@ in {
 
         SNAPSHOTS_EXTERNAL_ENABLED = "false";
         ALERTING_ENABLED = "false";
+
+        AUTH_LDAP_ENABLED = "true";
+        AUTH_LDAP_CONFIG_FILE = ldapConfigFile;
+        AUTH_LDAP_ALLOW_SIGN_UP = "true"; # allow the LDAP driver to create new users in the Grafana DB
       };
     };
 
