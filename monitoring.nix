@@ -22,13 +22,27 @@ let
     SUCCESS=1
 
     # check `systemctl --failed`
-    systemctl --failed | sed '/^$/,$d;/loaded units listed/,$d;1d' | cut -d' ' -f2 > /tmp/failed-units
-    if grep -q '[a-z]' /tmp/failed-units; then
-        echo ":: systemctl lists $(wc -l < /tmp/failed-units) unit(s) in an error state:"
-        cat /tmp/failed-units
+    check_systemctl() {
+        systemctl "$@" --failed | sed '/^$/,$d;/loaded units listed/,$d;1d' | cut -d' ' -f2 > /tmp/failed-units
+        if grep -q '[a-z]' /tmp/failed-units; then
+            echo ":: systemctl $@ lists $(wc -l < /tmp/failed-units) unit(s) in an error state:"
+            cat /tmp/failed-units
+            rm -f /tmp/failed-units
+            return 1
+        fi
+        rm -f /tmp/failed-units
+        return 0
+    }
+
+    if ! check_systemctl; then
         SUCCESS=0
     fi
-    rm -f /tmp/failed-units
+    for CONTAINER_FILENAME in /etc/containers/*.conf; do
+        CONTAINER_NAME="$(basename "$CONTAINER_FILENAME" .conf)"
+        if ! check_systemctl -M "$CONTAINER_NAME"; then
+            SUCCESS=0
+        fi
+    done
 
     # check if auto-upgrade installed a kernel that is not yet booted
     CURRENT_KERNEL="$(tr ' ' '\n' < /proc/cmdline | grep BOOT_IMAGE | sed 's,.*/nix/store/,/nix/store/,')"
@@ -54,7 +68,6 @@ let
         echo ':: Healthcheck completed without errors.'
     fi
     echo "Uptime: $(uptime)"
-
   '';
 
   isServer = cfg.network.server.clients != [];
