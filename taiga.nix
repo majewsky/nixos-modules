@@ -55,6 +55,8 @@ in {
           '';
         };
 
+        # TODO: continue with https://taigaio.github.io/taiga-doc/dist/setup-production.html#_backend_configuration
+
       };
     };
 

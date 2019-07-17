@@ -36,6 +36,8 @@ in {
     services.matrix-synapse = {
       database_type = "sqlite3";
       enable = true;
+      # 19.03 is stuck on Synapse 0.99.5
+      package = mkIf (config.system.stateVersion == "19.03") pkgs.channels.unstable.matrix-synapse;
 
       listeners = [
         {
