@@ -113,7 +113,7 @@ in {
     };
     # when restarting after certificate renewal, make sure that
     # umurmur-early.service completes before before restarting umurmur.service
-    security.acme.certs.${cfg.domainName}.postRun = intersperse " && " [
+    security.acme.certs.${cfg.domainName}.postRun = concatStringsSep " && " [
       "systemctl restart umurmur-early.service"
       "systemctl restart umurmur.service"
     ];

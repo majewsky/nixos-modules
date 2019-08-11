@@ -53,7 +53,7 @@ in {
     };
     # when restarting after certificate renewal, make sure that
     # prosody-early.service completes before before restarting prosody.service
-    security.acme.certs.${cfg.domainName}.postRun = intersperse " && " [
+    security.acme.certs.${cfg.domainName}.postRun = concatStringsSep " && " [
       "systemctl restart prosody-early.service"
       "systemctl restart prosody.service"
     ];
