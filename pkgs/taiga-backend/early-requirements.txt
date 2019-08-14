@@ -1,0 +1,4 @@
+-i https://pypi.org/simple
+pytest-runner==5.1
+versiontools==1.9.1
+cffi==1.12.3

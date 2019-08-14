@@ -9,6 +9,8 @@ let
 
   internalBackendListenPort = 17695;
 
+  taiga-backend-package = pkgs.callPackage ./pkgs/taiga-backend/default.nix {};
+
 in {
 
   options.my.services.taiga = {
@@ -35,6 +37,7 @@ in {
 
         environment.systemPackages = with pkgs; [
           postgresql_11 # for psql(1)
+          taiga-backend-package
         ];
 
         users.groups.taiga.gid = 1000;
