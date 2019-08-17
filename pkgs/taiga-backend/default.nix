@@ -14,6 +14,8 @@ deps@{
   postgresql_11,
   tcl,
   zlib,
+  # runtime dependencies for taiga-manage (runs during install phase)
+  gettext,
 }: let
 
   libraryDeps = builtins.removeAttrs deps ["stdenv" "fetchurl" "python36Packages"];
@@ -63,11 +65,15 @@ in stdenv.mkDerivation rec {
     mkdir $out/bin
     (
       echo '#!/bin/sh'
-      echo "cd \"$out/taiga\""
+      echo "cd \"\$(dirname \"\$0\")/../taiga\""
       echo "\"$out/venv/bin/python\" manage.py \"\$@\""
       echo 'exit $?'
     ) > $out/bin/taiga-manage
     chmod +x $out/bin/taiga-manage
+
+    $out/venv/bin/python -m compileall $out/taiga
+    $out/bin/taiga-manage compilemessages
+    $out/bin/taiga-manage collectstatic --noinput
   '';
 
   meta = with stdenv.lib; {
