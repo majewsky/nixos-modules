@@ -10,6 +10,7 @@ let
   internalBackendListenPort = 17695;
 
   taiga-backend-package = pkgs.callPackage ./pkgs/taiga-backend/default.nix {};
+  taiga-frontend-package = pkgs.callPackage ./pkgs/taiga-frontend/default.nix {};
 
 in {
 
@@ -138,17 +139,81 @@ in {
             WorkingDirectory = "/taigaback/overlayfs/taiga";
             # the following options as recommended by
             # <https://taigaio.github.io/taiga-doc/dist/setup-production.html#systemd-and-gunicorn>
+            Environment = "PYTHONUNBUFFERED=true";
             Restart = "always";
             RestartSec = "3";
           };
           script = ''
             /taigaback/overlayfs/bin/taiga-manage migrate --noinput
-            /taigaback/overlayfs/venv/bin/gunicorn --workers 4 --timeout 60 -b 127.0.0.1:${toString internalBackendListenPort} taiga.wsgi
+            /taigaback/overlayfs/venv/bin/gunicorn --workers 4 --timeout 60 -b 0.0.0.0:${toString internalBackendListenPort} taiga.wsgi
           '';
         };
 
-        # TODO: continue with https://taigaio.github.io/taiga-doc/dist/setup-production.html#_backend_configuration
+        # allow host system to access taiga-back service
+        networking.firewall.allowedTCPPorts = [ internalBackendListenPort ];
 
+      };
+    };
+
+    environment.etc."taiga-frontend/conf.json".text = builtins.toJSON {
+      api = "https://taiga.bethselamin.de/api/v1/";
+      eventsUrl = null;
+      eventsMaxMissedHeartbeats = 5;
+      eventsHeartbeatIntervalTime = 60000;
+      eventsReconnectTryInterval = 10000;
+      debug = false;
+      debugInfo = false;
+      defaultLanguage = "en";
+      themes = ["taiga"];
+      defaultTheme = "taiga";
+      publicRegisterEnabled = false;
+      feedbackEnabled = false;
+      supportUrl = "https://tree.taiga.io/support/";
+      privacyPolicyUrl = null;
+      termsOfServiceUrl = null;
+      GDPRUrl = null;
+      maxUploadFileSize = null;
+      contribPlugins = [];
+      tribeHost = null;
+      importers = [];
+      gravatar = true;
+      rtlLanguages = ["fa"];
+    };
+
+    services.nginx.virtualHosts.${cfg.domainName} = {
+      forceSSL = true;
+      enableACME = true;
+
+      # the following options as recommended by
+      # <https://taigaio.github.io/taiga-doc/dist/setup-production.html#nginx>
+      extraConfig = ''
+        large_client_header_buffers 4 32k;
+        client_max_body_size 50M;
+        charset utf-8;
+      '';
+
+      locations = let
+        proxyToBackend = {
+          proxyPass = "http://192.168.100.1:${toString internalBackendListenPort}$request_uri";
+          extraConfig = ''
+            proxy_redirect off;
+            proxy_set_header Host $http_host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Scheme $scheme;
+          '';
+        };
+      in {
+        "/api" = proxyToBackend;
+        "/admin" = proxyToBackend;
+        "/static".root = "${taiga-backend-package}/taiga/";
+        "/media".root = "/var/lib/containers/taiga/taigaback/upperdir/taiga/";
+        "/" = {
+          root = "${taiga-frontend-package}/dist/";
+          tryFiles = "$uri $uri/ /index.html";
+        };
+        "/conf.json" = {
+          root = "/etc/taiga-frontend/";
+        };
       };
     };
 
