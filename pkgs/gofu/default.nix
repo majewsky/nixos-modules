@@ -6,12 +6,15 @@ stdenv.mkDerivation rec {
   src = fetchFromGitHub {
     repo = "gofu";
     owner = "majewsky";
-    rev = "ef84ca3e82f422118c69a0c562433c185e1dcb9b";
-    sha256 = "17ijpgin99m8icn54fq8dd8vkfmz1fqv4xl7wxnv0rqdsi2xyxgd";
+    rev = "1ff86053ddef8de3247909434e0bd7000c060f2a";
+    sha256 = "0nxh6n4dw0gxq0z9f6wfdrn8ccn7ljvw1rf6vkfwf1bv0w3wvkw7";
   };
 
   buildInputs = [ go ];
-  makeFlags = [ "GOCACHE=off" "PREFIX=$(out)" ];
+  makeFlags = [ "PREFIX=$(out)" ];
+  preBuild = ''
+    makeFlagsArray+=(GOCACHE="$PWD/gocache" GO_BUILDFLAGS="-mod vendor")
+  '';
 
   meta = with stdenv.lib; {
     description = "My personal busybox built in Go";

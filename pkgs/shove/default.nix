@@ -10,7 +10,10 @@ stdenv.mkDerivation rec {
   };
 
   buildInputs = [ go ];
-  makeFlags = [ "GOCACHE=off" "GO111MODULE=off" "PREFIX=$(out)" ];
+  makeFlags = [ "PREFIX=$(out)" ];
+  preBuild = ''
+    makeFlagsArray+=(GOCACHE="$PWD/gocache" GO_BUILDFLAGS="-mod vendor")
+  '';
 
   meta = with stdenv.lib; {
     description = "GitHub webhook receiver";
