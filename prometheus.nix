@@ -113,7 +113,7 @@ in {
       description = "${serviceName} server";
 
       serviceConfig = {
-        ExecStart = "${pkgs.prometheus_2}/bin/prometheus --config.file=${serviceOpts.configYAML} --storage.tsdb.path=/var/lib/${serviceName} --web.listen-address=:${toString serviceOpts.port} --storage.tsdb.retention=${serviceOpts.retention}";
+        ExecStart = "${pkgs.prometheus}/bin/prometheus --config.file=${serviceOpts.configYAML} --storage.tsdb.path=/var/lib/${serviceName} --web.listen-address=:${toString serviceOpts.port} --storage.tsdb.retention=${serviceOpts.retention}";
         ExecReload = "${pkgs.utillinux}/bin/kill -HUP $MAINPID";
 
         User = "prometheus";
