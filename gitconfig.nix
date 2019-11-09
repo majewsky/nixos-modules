@@ -13,12 +13,12 @@ in {
     userName = mkOption {
       default = "Stefan Majewsky";
       description = "value of user.name in /etc/gitconfig";
-      type = types.string;
+      type = types.str;
     };
     userEMail = mkOption {
       default = "majewsky@gmx.net";
       description = "value of user.email in /etc/gitconfig";
-      type = types.string;
+      type = types.str;
     };
   };
 

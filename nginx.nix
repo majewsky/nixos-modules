@@ -17,7 +17,7 @@ in {
     fqdn = mkOption {
       description = "fully-qualified domain name for this machine (presence enables nginx)";
       default = null;
-      type = types.nullOr types.string;
+      type = types.nullOr types.str;
     };
 
     fqdnLocations = mkOption {

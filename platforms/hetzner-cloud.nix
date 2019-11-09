@@ -12,7 +12,7 @@ with lib; {
     ipv6Address = mkOption {
       description = "the IPv6 address for this machine (must end in ::1)";
       example = "2001:0db8:dead:beef::1";
-      type = types.string;
+      type = types.str;
     };
   };
 
