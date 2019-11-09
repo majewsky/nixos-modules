@@ -187,6 +187,9 @@ in {
       openFirewall = true;
       firewallFilter = "-i wg-monitoring -p tcp -m tcp --dport 9100";
     };
+    # since the listen address refers to the monitoring network, wait until
+    # that interface is set up
+    systemd.services.prometheus-node-exporter.after = [ "wireguard-wg-monitoring.service" ];
 
     environment.etc."consul.d/prometheus-node-exporter.json".text = ''
       {
