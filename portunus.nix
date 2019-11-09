@@ -105,7 +105,13 @@ in {
     systemd.services.portunus = {
       description = "Self-contained authentication service";
       wantedBy = [ "multi-user.target" ];
-      after = [ "network.target" ];
+      after = [
+        "network.target"
+        # in my setup, Portunus will fail to start up unless the WireGuard network
+        # is already up, because ldap-client.nix overrides the LDAP server's domain
+        # name to refer to an address on the WireGuard network
+        "wireguard-wg-monitoring.service"
+      ];
 
       serviceConfig.ExecStart = "${cfg.package.out}/bin/portunus-orchestrator";
       environment = {
