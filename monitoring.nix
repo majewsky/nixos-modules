@@ -39,8 +39,10 @@ let
     fi
     for CONTAINER_FILENAME in /etc/containers/*.conf; do
         CONTAINER_NAME="$(basename "$CONTAINER_FILENAME" .conf)"
-        if ! check_systemctl -M "$CONTAINER_NAME"; then
-            SUCCESS=0
+        if [ "$CONTAINER_NAME" != "*" ]; then
+            if ! check_systemctl -M "$CONTAINER_NAME"; then
+                SUCCESS=0
+            fi
         fi
     done
 
