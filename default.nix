@@ -36,6 +36,7 @@ let
 in {
 
   imports = [
+    ./alltag.nix
     ./archlinux-mirror.nix
     ./borgbackup-sender.nix
     ./gitconfig.nix
