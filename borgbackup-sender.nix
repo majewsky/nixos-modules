@@ -52,6 +52,18 @@ in {
 
       serviceConfig = {
         Type = "oneshot";
+
+        # sandboxing
+        ProtectSystem = "strict";
+        PrivateTmp = "true";
+        PrivateDevices = "true";
+        ProtectKernelTunables = "true";
+        ProtectKernelModules = "true";
+        ProtectControlGroups = "true";
+        RestrictNamespaces = "true";
+        SystemCallFilter = "@system-service";
+        SystemCallErrorNumber = "EPERM";
+
       };
     };
 
