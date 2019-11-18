@@ -72,10 +72,7 @@ in {
     };
 
     systemd.services.portunus = let
-      # TODO remove legacy case after 19.09 upgrade
-      acmeDirectory = if config.system.stateVersion == "19.03"
-        then "${config.security.acme.directory}/${cfg.ldapDomainName}"
-        else config.security.acme.certs.${cfg.ldapDomainName}.directory;
+      acmeDirectory = config.security.acme.certs.${cfg.ldapDomainName}.directory;
     in {
       environment = {
         PORTUNUS_SLAPD_TLS_CA_CERTIFICATE = "${acmeDirectory}/complete-chain.pem";
