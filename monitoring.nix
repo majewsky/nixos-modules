@@ -215,6 +215,7 @@ in {
 
         # hardening: this process is only supposed to connect to read its input
         # file and the announcer's TCP socket
+        DynamicUser = "yes";
         LockPersonality = "yes";
         MemoryDenyWriteExecute = "yes";
         NoNewPrivileges = "yes";
