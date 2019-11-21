@@ -17,7 +17,7 @@ let
 
   persisterPort = 9090;
   collectorPort = 9091;
-  serviceDiscoveryPort = 9092;
+  serviceDiscoveryPort = config.my.services.monitoring.prometheus.serviceCollectorPort;
 
   serviceDiscoveryPackage = pkgs.callPackage ./pkgs/prometheus-minimum-viable-sd/default.nix {};
 
@@ -109,7 +109,9 @@ in {
     # no need to backup ephemeral data that's never more than one hour old
     my.services.borgbackup.excludedPaths = [ "/var/lib/prometheus-collector" ];
 
-    networking.firewall.interfaces.wg-monitoring.allowedTCPPorts = map (opts: opts.port) (attrValues instances);
+    networking.firewall.interfaces.wg-monitoring.allowedTCPPorts = let
+      prometheusPorts = map (opts: opts.port) (attrValues instances);
+    in prometheusPorts ++ [ serviceDiscoveryPort ];
 
     systemd.services = let
       prometheusServices = mapAttrs (serviceName: serviceOpts: {
@@ -127,7 +129,7 @@ in {
         };
       }) instances;
       auxiliaryServices = {
-        prometheus-minimum-viable-sd = {
+        prometheus-minimum-viable-sd-collect = {
           wantedBy = [ "multi-user.target" ];
           description = "Minimum Viable service discovery for Prometheus";
 

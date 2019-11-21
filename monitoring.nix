@@ -14,6 +14,7 @@ let
   cfg = config.my.services.monitoring;
 
   script2matrix = pkgs.callPackage ./pkgs/script2matrix/default.nix {};
+  prometheus-mv-sd = pkgs.callPackage ./pkgs/prometheus-minimum-viable-sd/default.nix {};
 
   health-check-script = pkgs.writeScriptBin "health-check-script" ''
     #!/usr/bin/env bash
@@ -75,6 +76,13 @@ let
   isServer = cfg.network.server.clients != [];
   isClient = !isServer;
 
+  prometheusServices = builtins.map (srv: {
+    targets = [ "${cfg.network.slash24}.${toString machineID}:${toString srv.port}" ];
+    labels.instance = config.networking.hostName;
+    labels.job = srv.name;
+  }) cfg.prometheus.services;
+  prometheusServicesFile = pkgs.writeText "prometheus-services.json" (builtins.toJSON prometheusServices);
+
 in {
 
   imports = [
@@ -83,6 +91,7 @@ in {
 
   options = let
     mkStrOpt = description: mkOption { inherit description; type = types.str; };
+    mkPortOpt = description: mkOption { inherit description; type = types.ints.u16; };
   in {
 
     my.services.monitoring.network = {
@@ -104,16 +113,29 @@ in {
           default = [];
           type = with types; listOf (submodule { options = optsPerClient; });
         };
-        listenPort = mkOption {
-          description = "listen port of wg-monitoring server";
-          type = types.ints.u16;
-        };
+        listenPort = mkPortOpt "listen port of wg-monitoring server";
       };
     };
 
     my.services.monitoring.matrix = {
       userName = mkStrOpt "user ID of Matrix user account for this machine";
       target   = mkStrOpt "Matrix room where healthcheck results shall be posted to";
+    };
+
+    my.services.monitoring.prometheus = {
+      serviceCollectorIP = mkStrOpt "IP address of node which runs the prometheus-minimum-viable-sd collector";
+      serviceCollectorPort = mkPortOpt "listen port of prometheus-minimum-viable-sd collector";
+
+      services = let
+        optsPerService = {
+          name = mkStrOpt "name of service";
+          port = mkPortOpt "port where service emits Prometheus metrics on HTTP";
+        };
+      in mkOption {
+        description = "services on this node that emit Prometheus metrics";
+        default = [];
+        type = with types; listOf (submodule { options = optsPerService; });
+      };
     };
 
   };
@@ -180,6 +202,41 @@ in {
     };
 
     ############################################################################
+    # announcement of services that emit Prometheus metrics
+
+    systemd.services.prometheus-minimum-viable-sd-announce = {
+      wantedBy = [ "multi-user.target" ];
+      description = "Minimum Viable service discovery for Prometheus";
+
+      serviceConfig = {
+        ExecStart = "${prometheus-mv-sd}/bin/prometheus-minimum-viable-sd announce ${prometheusServicesFile} ${cfg.prometheus.serviceCollectorIP}:${toString cfg.prometheus.serviceCollectorPort}";
+        Restart = "always";
+        RestartSec = "10s";
+
+        # hardening: this process is only supposed to connect to read its input
+        # file and the announcer's TCP socket
+        LockPersonality = "yes";
+        MemoryDenyWriteExecute = "yes";
+        NoNewPrivileges = "yes";
+        PrivateDevices = "yes";
+        PrivateTmp = "yes";
+        ProtectControlGroups = "yes";
+        ProtectHome = "yes";
+        ProtectHostname = "yes";
+        ProtectKernelModules = "yes";
+        ProtectKernelTunables = "yes";
+        ProtectSystem = "strict";
+        RestrictAddressFamilies = "AF_INET AF_INET6";
+        RestrictNamespaces = "yes";
+        RestrictRealtime = "yes";
+        RestrictSUIDSGID = "yes";
+        SystemCallArchitectures = "native";
+        SystemCallErrorNumber = "EPERM";
+        SystemCallFilter = "@system-service";
+      };
+    };
+
+    ############################################################################
     # deploy prometheus-node-exporter
 
     services.prometheus.exporters.node = {
@@ -205,6 +262,10 @@ in {
     '';
     systemd.services.consul.restartTriggers = [
       config.environment.etc."consul.d/prometheus-node-exporter.json".source
+    ];
+
+    my.services.monitoring.prometheus.services = [
+      { port = 9100; name = "prometheus-node-exporter"; }
     ];
 
     ############################################################################
