@@ -17,6 +17,9 @@ let
 
   persisterPort = 9090;
   collectorPort = 9091;
+  serviceDiscoveryPort = 9092;
+
+  serviceDiscoveryPackage = pkgs.callPackage ./pkgs/prometheus-minimum-viable-sd/default.nix {};
 
   collectorConfigYAML = pkgs.writeText "prometheus-collector.yaml" ''
     global:
@@ -108,20 +111,59 @@ in {
 
     networking.firewall.interfaces.wg-monitoring.allowedTCPPorts = map (opts: opts.port) (attrValues instances);
 
-    systemd.services = mapAttrs (serviceName: serviceOpts: {
-      wantedBy = [ "multi-user.target" ];
-      description = "${serviceName} server";
+    systemd.services = let
+      prometheusServices = mapAttrs (serviceName: serviceOpts: {
+        wantedBy = [ "multi-user.target" ];
+        description = "${serviceName} server";
 
-      serviceConfig = {
-        ExecStart = "${pkgs.prometheus}/bin/prometheus --config.file=${serviceOpts.configYAML} --storage.tsdb.path=/var/lib/${serviceName} --web.listen-address=:${toString serviceOpts.port} --storage.tsdb.retention=${serviceOpts.retention}";
-        ExecReload = "${pkgs.utillinux}/bin/kill -HUP $MAINPID";
+        serviceConfig = {
+          ExecStart = "${pkgs.prometheus}/bin/prometheus --config.file=${serviceOpts.configYAML} --storage.tsdb.path=/var/lib/${serviceName} --web.listen-address=:${toString serviceOpts.port} --storage.tsdb.retention=${serviceOpts.retention}";
+          ExecReload = "${pkgs.utillinux}/bin/kill -HUP $MAINPID";
 
-        User = "prometheus";
-        Group = "prometheus";
-        WorkingDirectory = "/var/lib/${serviceName}";
-        StateDirectory = serviceName;
+          User = "prometheus";
+          Group = "prometheus";
+          WorkingDirectory = "/var/lib/${serviceName}";
+          StateDirectory = serviceName;
+        };
+      }) instances;
+      auxiliaryServices = {
+        prometheus-minimum-viable-sd = {
+          wantedBy = [ "multi-user.target" ];
+          description = "Minimum Viable service discovery for Prometheus";
+
+          serviceConfig = {
+            ExecStart = "${serviceDiscoveryPackage}/bin/prometheus-minimum-viable-sd collect /run/prometheus/services.json :${toString serviceDiscoveryPort}";
+            Restart = "always";
+            RestartSec = "10s";
+
+            # run under same user/group as prometheus-collector, since prometheus-collector needs to read our runtime directory
+            User = "prometheus";
+            Group = "prometheus";
+
+            # hardening: this process is only supposed to listen on its TCP socket and write to its output file
+            LockPersonality = "yes";
+            MemoryDenyWriteExecute = "yes";
+            NoNewPrivileges = "yes";
+            PrivateDevices = "yes";
+            PrivateTmp = "yes";
+            ProtectControlGroups = "yes";
+            ProtectHome = "yes";
+            ProtectHostname = "yes";
+            ProtectKernelModules = "yes";
+            ProtectKernelTunables = "yes";
+            ProtectSystem = "strict";
+            RestrictAddressFamilies = "AF_INET AF_INET6";
+            RestrictNamespaces = "yes";
+            RestrictRealtime = "yes";
+            RestrictSUIDSGID = "yes";
+            RuntimeDirectory = "prometheus";
+            SystemCallArchitectures = "native";
+            SystemCallErrorNumber = "EPERM";
+            SystemCallFilter = "@system-service";
+          };
+        };
       };
-    }) instances;
+    in mkMerge [ prometheusServices auxiliaryServices ];
 
   };
 
