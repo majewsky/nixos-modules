@@ -1,5 +1,5 @@
-# This module configures the Consul agent that is running on every machine for
-# service discovery within the monitoring network.
+# This module configures the WireGuard-based monitoring network and the
+# monitoring agents that are running on every machine.
 # REPLACES hologram-monitoring-agents
 # REPLACES hologram-monitoring-client
 # REPLACES hologram-monitoring-server
@@ -179,29 +179,6 @@ in {
     '';
 
     ############################################################################
-    # Consul for service discovery within the monitoring network
-
-    services.consul = {
-      enable = true;
-      interface.bind = "wg-monitoring";
-      extraConfig = {
-        log_level = "INFO";
-        # The following extraConfig options come from a secret module:
-        #   bootstrap  = true/false
-        #   datacenter = "..."
-        #   encrypt    = "..."
-        #   retry_join = [...]
-        #   server     = true/false
-      };
-    };
-
-    # open ports for Consul cluster-internal traffic
-    networking.firewall.interfaces."wg-monitoring" = {
-      allowedTCPPorts = [ 8300 8301 8302 ];
-      allowedUDPPorts = [ 8300 8301 8302 ];
-    };
-
-    ############################################################################
     # announcement of services that emit Prometheus metrics
 
     systemd.services.prometheus-minimum-viable-sd-announce = {
@@ -250,20 +227,6 @@ in {
     # since the listen address refers to the monitoring network, wait until
     # that interface is set up
     systemd.services.prometheus-node-exporter.after = [ "wireguard-wg-monitoring.service" ];
-
-    environment.etc."consul.d/prometheus-node-exporter.json".text = ''
-      {
-        "service": {
-          "name": "prometheus-node-exporter",
-          "port": 9100,
-          "tags": [ "prometheus" ],
-          "meta": {}
-        }
-      }
-    '';
-    systemd.services.consul.restartTriggers = [
-      config.environment.etc."consul.d/prometheus-node-exporter.json".source
-    ];
 
     my.services.monitoring.prometheus.services = [
       { port = 9100; name = "prometheus-node-exporter"; }

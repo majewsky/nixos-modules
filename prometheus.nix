@@ -38,20 +38,9 @@ let
         static_configs:
           - targets: ['localhost:${toString persisterPort}']
 
-      - job_name: consul
-        consul_sd_configs:
-          - server: 127.0.0.1:8500
-        relabel_configs:
-          - source_labels: [__meta_consul_tags]
-            regex: '.*,prometheus,.*'
-            action: keep
-          - source_labels: [__meta_consul_node]
-            target_label: instance
-          - source_labels: [__meta_consul_service]
-            target_label: job
-          - source_labels: [__meta_consul_service_metadata_metrics_path]
-            target_label: __metrics_path__
-            regex: (.+)
+      - job_name: service-discovery
+        file_sd_configs:
+          - files: ['/run/prometheus/services.json']
   '';
 
   persisterConfigYAML = pkgs.writeText "prometheus-persister.yaml" ''
