@@ -52,8 +52,34 @@ in {
 
       serviceConfig = {
         ExecStart = "${alltag.out}/bin/alltag";
+        Restart = "always";
+        RestartSec = "10s";
+
         User = "alltag";
         Group = "alltag";
+
+        # hardening: this process is only supposed to
+        #   a) listen on its HTTP socket
+        #   b) connect to LDAP via TCP
+        #   c) connect to Postgres via AF_UNIX
+        LockPersonality = "yes";
+        MemoryDenyWriteExecute = "yes";
+        NoNewPrivileges = "yes";
+        PrivateDevices = "yes";
+        PrivateTmp = "yes";
+        ProtectControlGroups = "yes";
+        ProtectHome = "yes";
+        ProtectHostname = "yes";
+        ProtectKernelModules = "yes";
+        ProtectKernelTunables = "yes";
+        ProtectSystem = "strict";
+        RestrictAddressFamilies = "AF_UNIX AF_INET AF_INET6";
+        RestrictNamespaces = "yes";
+        RestrictRealtime = "yes";
+        RestrictSUIDSGID = "yes";
+        SystemCallArchitectures = "native";
+        SystemCallErrorNumber = "EPERM";
+        SystemCallFilter = "@system-service";
       };
 
       environment = let
