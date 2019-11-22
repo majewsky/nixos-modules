@@ -9,6 +9,26 @@ let
   cfg = config.services.gitea;
   internalListenPort = 17610;
 
+  ldapOptions = let
+    inherit (config.my) ldap;
+  in {
+    name = "auto-ldap";
+    security-protocol = "LDAPS";
+    host = ldap.domainName;
+    port = "636"; # LDAPS
+    user-search-base = "ou=users,${ldap.suffix}";
+    user-filter = "(&(uid=%s)(isMemberOf=cn=gitea-users,ou=groups,${ldap.suffix}))";
+    admin-filter = "(isMemberOf=cn=gitea-admins,ou=groups,${ldap.suffix})";
+    username-attribute = "uid";
+    firstname-attribute = "givenName";
+    surname-attribute = "sn";
+    email-attribute = "mail";
+    bind-dn = "uid=${ldap.searchUserName},ou=users,${ldap.suffix}";
+    bind-password = ldap.searchUserPassword;
+  };
+
+  ldapFlags = "--attributes-in-bind --synchronize-users";
+
 in {
 
   config = mkIf cfg.enable {
@@ -20,10 +40,10 @@ in {
       httpAddress = "127.0.0.1";
       httpPort = internalListenPort;
 
+      # NOTE: default log mode is "console" since Gitea 1.9
       log.level = "Info";
-      log.rootPath = "/var/lib/gitea/log"; # TODO should be /var/log/gitea, but the NixOS module for Gitea does not set that path up
 
-      # security/privacy hardening
+      # security/privacy hardening, and enable user sync job for LDAP
       extraConfig = ''
         [repository.upload]
         ENABLED = false
@@ -46,8 +66,31 @@ in {
 
         [oauth2]
         ENABLE = false
+
+        [cron.sync_external_users]
+        RUN_AT_START = true
+        SCHEDULE = @every 1h
+        UPDATE_EXISTING = true
       '';
     };
+
+    # LDAP authentication cannot be set up declaratively, so we have to do it
+    # at the end of the preStart script
+    #
+    # WARNING: This assumes that the LDAP auth source has the internal ID 1.
+    systemd.services.gitea.preStart = let
+      giteaBin = "${pkgs.gitea}/bin/gitea";
+
+      formatOption = key: value: "--${key} ${escapeShellArg value}";
+      ldapOptionsStrs = mapAttrsToList formatOption ldapOptions;
+      ldapOptionsStr = concatStringsSep " " ldapOptionsStrs;
+    in mkAfter ''
+      if ${giteaBin} admin auth list | grep -q ${ldapOptions.name}; then
+        ${giteaBin} admin auth update-ldap --id 1 ${ldapOptionsStr} ${ldapFlags}
+      else
+        ${giteaBin} admin auth add-ldap ${ldapOptionsStr} ${ldapFlags}
+      fi
+    '';
 
     services.nginx.virtualHosts.${cfg.domain} = {
       forceSSL = true;
