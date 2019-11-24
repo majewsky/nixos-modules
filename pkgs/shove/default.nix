@@ -2,11 +2,11 @@
 
 stdenv.mkDerivation rec {
   name = "shove-${version}";
-  version = "0.1.0";
+  version = "1.0.0";
 
   src = fetchurl {
     url = "https://github.com/majewsky/shove/archive/v${version}.tar.gz";
-    sha256 = "1mbws35k7sc3284pylvn88pa9zh1cjvv1vh6gf1dfpv67nh7w249";
+    sha256 = "0nslc2rhan8sgm30zk9k820887svsafkkn4zc3dhjpz2506h6006";
   };
 
   buildInputs = [ go ];
