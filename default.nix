@@ -42,6 +42,7 @@ in {
     ./gitconfig.nix
     ./gitea.nix
     ./grafana.nix
+    ./hardening.nix
     ./ldap-client.nix
     ./ldap-server.nix
     ./matrix-synapse.nix

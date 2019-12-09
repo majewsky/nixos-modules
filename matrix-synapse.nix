@@ -51,6 +51,7 @@ in {
       allow_guest_access = false;
       enable_registration = false;
     };
+    # TODO: hardening
 
   };
 

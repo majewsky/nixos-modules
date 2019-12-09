@@ -54,6 +54,10 @@ in {
         locations = cfg.fqdnLocations;
       };
     };
+    my.hardening.nginx = {
+      allowInternetAccess = true; # to bind HTTP(S)
+      allowWriteAccessTo = [ "/var/spool/nginx" ];
+    };
 
   };
 

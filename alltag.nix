@@ -24,11 +24,6 @@ in {
 
   config = mkIf (cfg.domainName != null) {
 
-    users.groups.alltag = {};
-    users.users.alltag = {
-      group = "alltag";
-    };
-
     services.nginx.virtualHosts.${cfg.domainName} = {
       forceSSL = true;
       enableACME = true;
@@ -55,31 +50,7 @@ in {
         Restart = "always";
         RestartSec = "10s";
 
-        User = "alltag";
-        Group = "alltag";
-
-        # hardening: this process is only supposed to
-        #   a) listen on its HTTP socket
-        #   b) connect to LDAP via TCP
-        #   c) connect to Postgres via AF_UNIX
-        LockPersonality = "yes";
-        MemoryDenyWriteExecute = "yes";
-        NoNewPrivileges = "yes";
-        PrivateDevices = "yes";
-        PrivateTmp = "yes";
-        ProtectControlGroups = "yes";
-        ProtectHome = "yes";
-        ProtectHostname = "yes";
-        ProtectKernelModules = "yes";
-        ProtectKernelTunables = "yes";
-        ProtectSystem = "strict";
-        RestrictAddressFamilies = "AF_UNIX AF_INET AF_INET6";
-        RestrictNamespaces = "yes";
-        RestrictRealtime = "yes";
-        RestrictSUIDSGID = "yes";
-        SystemCallArchitectures = "native";
-        SystemCallErrorNumber = "EPERM";
-        SystemCallFilter = "@system-service";
+        DynamicUser = "yes";
       };
 
       environment = let
@@ -93,6 +64,11 @@ in {
         ALLTAG_LDAP_SEARCH_FILTER = "(uid=%%s)";
         ALLTAG_LISTEN_ADDRESS = "127.0.0.1:${toString internalListenPort}";
       };
+    };
+
+    my.hardening.alltag = {
+      allowUnixDomainSockets = true; # to connect to Postgres
+      allowInternetAccess = true;    # to connect to LDAP and bind HTTP
     };
 
   };

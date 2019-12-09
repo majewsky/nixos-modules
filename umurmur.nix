@@ -132,6 +132,9 @@ in {
 
       wantedBy = [ "multi-user.target" ];
     };
+    my.hardening.umurmur = {
+      allowInternetAccess = true; # to bind Murmur
+    };
 
     # open port in firewall
     networking.firewall.allowedTCPPorts = mkIf cfg.openFirewall [cfg.listenPort];

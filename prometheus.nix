@@ -130,31 +130,24 @@ in {
             # run under same user/group as prometheus-collector, since prometheus-collector needs to read our runtime directory
             User = "prometheus";
             Group = "prometheus";
-
-            # hardening: this process is only supposed to listen on its TCP socket and write to its output file
-            LockPersonality = "yes";
-            MemoryDenyWriteExecute = "yes";
-            NoNewPrivileges = "yes";
-            PrivateDevices = "yes";
-            PrivateTmp = "yes";
-            ProtectControlGroups = "yes";
-            ProtectHome = "yes";
-            ProtectHostname = "yes";
-            ProtectKernelModules = "yes";
-            ProtectKernelTunables = "yes";
-            ProtectSystem = "strict";
-            RestrictAddressFamilies = "AF_INET AF_INET6";
-            RestrictNamespaces = "yes";
-            RestrictRealtime = "yes";
-            RestrictSUIDSGID = "yes";
             RuntimeDirectory = "prometheus";
-            SystemCallArchitectures = "native";
-            SystemCallErrorNumber = "EPERM";
-            SystemCallFilter = "@system-service";
+            RuntimeDirectoryPreserve = "restart";
           };
         };
       };
     in mkMerge [ prometheusServices auxiliaryServices ];
+
+    my.hardening = let
+      prometheusHardening = mapAttrs (serviceName: serviceOpts: {
+        allowInternetAccess = true; # to bind HTTP
+        allowWriteAccessTo = [ "/var/lib/${serviceName}" ];
+      }) instances;
+      auxiliaryHardening = {
+        prometheus-minimum-viable-sd-collect = {
+          allowInternetAccess = true; # to bind TCP
+        };
+      };
+    in mkMerge [ prometheusHardening auxiliaryHardening ];
 
   };
 

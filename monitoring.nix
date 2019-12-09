@@ -190,28 +190,12 @@ in {
         Restart = "always";
         RestartSec = "10s";
 
-        # hardening: this process is only supposed to connect to read its input
-        # file and the announcer's TCP socket
+        # hardening
         DynamicUser = "yes";
-        LockPersonality = "yes";
-        MemoryDenyWriteExecute = "yes";
-        NoNewPrivileges = "yes";
-        PrivateDevices = "yes";
-        PrivateTmp = "yes";
-        ProtectControlGroups = "yes";
-        ProtectHome = "yes";
-        ProtectHostname = "yes";
-        ProtectKernelModules = "yes";
-        ProtectKernelTunables = "yes";
-        ProtectSystem = "strict";
-        RestrictAddressFamilies = "AF_INET AF_INET6";
-        RestrictNamespaces = "yes";
-        RestrictRealtime = "yes";
-        RestrictSUIDSGID = "yes";
-        SystemCallArchitectures = "native";
-        SystemCallErrorNumber = "EPERM";
-        SystemCallFilter = "@system-service";
       };
+    };
+    my.hardening.prometheus-minimum-viable-sd-announce = {
+      allowInternetAccess = true;
     };
 
     ############################################################################
@@ -227,6 +211,9 @@ in {
     # since the listen address refers to the monitoring network, wait until
     # that interface is set up
     systemd.services.prometheus-node-exporter.after = [ "wireguard-wg-monitoring.service" ];
+    my.hardening.prometheus-node-exporter = {
+      allowInternetAccess = true;
+    };
 
     my.services.monitoring.prometheus.services = [
       { port = 9100; name = "prometheus-node-exporter"; }

@@ -50,21 +50,11 @@ in {
         BORG_PASSCOMMAND = "cat /nix/my/unpacked/generated-borgbackup-key";
       };
 
-      serviceConfig = {
-        Type = "oneshot";
+      serviceConfig.Type = "oneshot";
+    };
 
-        # sandboxing
-        ProtectSystem = "strict";
-        PrivateTmp = "true";
-        PrivateDevices = "true";
-        ProtectKernelTunables = "true";
-        ProtectKernelModules = "true";
-        ProtectControlGroups = "true";
-        RestrictNamespaces = "true";
-        SystemCallFilter = "@system-service";
-        SystemCallErrorNumber = "EPERM";
-
-      };
+    my.hardening.borgbackup-root = {
+      allowInternetAccess = true; # to reach backup location
     };
 
   };
