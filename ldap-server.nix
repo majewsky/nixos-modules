@@ -64,7 +64,7 @@ in {
 
     security.acme.certs.${cfg.ldapDomainName} = {
       webroot = "/var/lib/acme/acme-challenge"; # TODO pull this value from default of services.nginx.virtualHosts.<name>.acmeRoot?
-      plugins = [ "key.pem" "chain.pem" "cert.pem" "account_key.json" ];
+      plugins = [ "key.pem" "chain.pem" "cert.pem" "account_key.json" "account_reg.json" ];
       postRun = ''
         cat ${dstRootCA_X3} chain.pem > complete-chain.pem
         systemctl restart portunus.service
