@@ -51,6 +51,11 @@ in {
       };
 
       serviceConfig.Type = "oneshot";
+
+      # despite the hardening below, we need to be able to write to our home
+      # directory, i.e. /root/, to access /root/.ssh/known_hosts (writing is not
+      # required here) and /root/.cache/borg/ (this one requires write access)
+      serviceConfig.ProtectHome = mkForce "no";
     };
 
     my.hardening.borgbackup-root = {
