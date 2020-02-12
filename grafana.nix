@@ -10,8 +10,6 @@ let
   cfg = config.my.services.grafana;
   internalListenPort = 28563;
 
-  # TODO 19.03: use config.services.grafana.provision options
-
   # copy the entire ./grafana-dashboards directory into the /nix/store.
   dashboardsDir = builtins.path { path = ./grafana-dashboards; name = "grafana-dashboards"; };
 

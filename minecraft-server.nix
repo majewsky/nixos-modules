@@ -20,7 +20,6 @@ in {
 
   config = mkIf cfg.enable {
 
-    # TODO: borgbackup instead of backup via Git
     # TODO FIXME: fix `stop` command
 
     users.groups.minecraft = {};
