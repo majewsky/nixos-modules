@@ -6,6 +6,8 @@ let
 
   cfg = config.my.services.borgbackup;
 
+  script2matrix = pkgs.callPackage ./pkgs/script2matrix/default.nix {};
+
 in {
 
   options.my.services.borgbackup = {
@@ -37,18 +39,21 @@ in {
       after = [ "network-online.target" ];
       startAt = "02:00:00"; # before nix-gc.service (at 03:15) and nixos-upgrade.service (at 04:40)
 
-      path = [ pkgs.borgbackup pkgs.openssh pkgs.coreutils ];
+      path = [ pkgs.borgbackup pkgs.openssh pkgs.coreutils script2matrix ];
       script = ''
-        borg create -s --one-file-system --exclude-caches \
+        exec script2matrix borg create -s --one-file-system --exclude-caches \
           ${concatMapStrings (path: "--exclude ${path} ") cfg.excludedPaths} \
           --compression auto,lzma \
           --rsh "ssh -i /nix/my/unpacked/borgbackup-ssh-key" \
           --remote-ratelimit 10240 \
           "borgrecv@${cfg.targetHost}:/var/lib/borgrecv/repo/${config.networking.hostName}::{utcnow:%Y-%m-%dT%H:%M:%SZ}" /
       '';
-      environment = {
+      environment = let cfgMatrix = config.my.services.monitoring.matrix; in {
         BORG_PASSCOMMAND = "cat /nix/my/unpacked/generated-borgbackup-key";
+        MATRIX_USER = cfgMatrix.userName;
+        MATRIX_TARGET = cfgMatrix.target;
       };
+      serviceConfig.EnvironmentFile = toString /nix/my/unpacked/generated-matrix-password;
 
       serviceConfig.Type = "oneshot";
 
