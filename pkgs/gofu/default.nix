@@ -1,13 +1,12 @@
-{ stdenv, fetchFromGitHub, go }:
+{ stdenv, fetchurl, go }:
 
 stdenv.mkDerivation rec {
-  name = "gofu";
+  name = "gofu-${version}";
+  version = "2020.1";
 
-  src = fetchFromGitHub {
-    repo = "gofu";
-    owner = "majewsky";
-    rev = "1ff86053ddef8de3247909434e0bd7000c060f2a";
-    sha256 = "0nxh6n4dw0gxq0z9f6wfdrn8ccn7ljvw1rf6vkfwf1bv0w3wvkw7";
+  src = fetchurl {
+    url = "https://github.com/majewsky/gofu/archive/v${version}.tar.gz";
+    sha256 = "1wgy04fnc74n7b2j2v3syci8aqdkizp34wp38l2lwzhn3p8pglx9";
   };
 
   buildInputs = [ go ];
