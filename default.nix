@@ -141,7 +141,7 @@ in {
 
     users.users.stefan = {
       isNormalUser = true;
-      uid = 1000;
+      uid = 1001;
       extraGroups = ["wheel"];
       shell = pkgs.zsh;
       openssh.authorizedKeys.keyFiles = [ /nix/my/unpacked/ssh-keys ];

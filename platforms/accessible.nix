@@ -1,9 +1,9 @@
 # This module is imported by every system where I have physical access.
 # REPLACES hologram-base-accessible
 
-{ config, pkgs, lib }: {
+{ config, pkgs, lib, ... }: {
 
-  imports = [ ./base.nix ];
+  imports = [ ];
 
   config = {
 
