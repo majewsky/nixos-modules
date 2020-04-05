@@ -204,7 +204,7 @@ in {
     services.prometheus.exporters.node = {
       enable = true;
       listenAddress = "${cfg.network.slash24}.${toString machineID}";
-      disabledCollectors = [ "wifi" ];
+      disabledCollectors = [ "wifi" "timex" ]; # timex collector doesn't work because of hardening, and I don't care to get it working
       openFirewall = true;
       firewallFilter = "-i wg-monitoring -p tcp -m tcp --dport 9100";
     };
