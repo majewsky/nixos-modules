@@ -5,12 +5,13 @@ with lib;
 {
 
   imports = [
-    ./accessible.nix
     <nixos-hardware/lenovo/thinkpad>
     <nixos-hardware/common/cpu/amd>
   ];
 
   config = {
+
+    my.workstation.enabled = true;
 
     hardware.enableRedistributableFirmware = true;
 
