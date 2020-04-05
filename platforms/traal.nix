@@ -6,10 +6,13 @@ with lib;
 
   imports = [
     ./accessible.nix
-    <nixpkgs/nixos/modules/installer/scan/not-detected.nix>
+    <nixos-hardware/lenovo/thinkpad>
+    <nixos-hardware/common/cpu/amd>
   ];
 
   config = {
+
+    hardware.enableRedistributableFirmware = true;
 
     boot.loader.systemd-boot.enable = true;
     boot.loader.efi.canTouchEfiVariables = true;
@@ -36,7 +39,7 @@ with lib;
 
     swapDevices = [ ];
     nix.maxJobs = mkDefault 8;
-    
+
   };
 
 }
