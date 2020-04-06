@@ -1,3 +1,7 @@
+# This module contains the hardware-specific configuration for my notebook.
+# Most of it comes from the original </etc/nixos/hardware-configuration.nix>.
+# TODO holodeck-traal
+
 { config, pkgs, lib, ... }:
 
 with lib;
@@ -38,7 +42,7 @@ with lib;
     };
     # boot.initrd.luks.devices."root".device = "...";
 
-    swapDevices = [ ];
+    swapDevices = [];
     nix.maxJobs = mkDefault 8;
 
   };

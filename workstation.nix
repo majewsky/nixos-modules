@@ -1,5 +1,15 @@
 # This module is imported by every system where I have physical access.
 # REPLACES hologram-base-accessible
+# REPLACES hologram-base-gui-minimal
+# TODO hologram-base-gui
+# TODO hologram-multimedia-base
+# TODO hologram-devtools
+# TODO hologram-devtools-minimal
+# TODO hologram-dtp
+# TODO hologram-games
+# TODO hologram-kde-desktop-minimal
+# TODO hologram-kde-desktop
+# TODO hologram-sway-desktop
 
 { config, pkgs, lib, ... }:
 
@@ -11,8 +21,6 @@ let
 
   essentialPackages = with pkgs; [
     # command-line utilities
-    # TODO pwget
-    # TODO pwget2
     acpi
     dosfstools # mkfs.vfat
     hdparm
@@ -20,18 +28,73 @@ let
     irssi
     iw
     p7zip
+    # TODO pwget
+    # TODO pwget2
     smartmontools
     sshfs
     unzip
     whois
     zip
 
-    # multimedia
+    # X11 utilities
+    xorg.xev
+    xorg.xlsclients
+    xorg.xmodmap
+    xorg.xprop
+    xorg.xrandr
+    xsel
+
+    # GUI programs
+    firefox
+    gnuplot
+    # TODO gvim
+    mupdf
+    screen-message
+
+    # image viewing/manipulation
+    graphviz
+    imagemagick
+    inkscape
     optipng
+    sxiv
     svgcleaner
+
+    # audio
+    paprefs
+    pavucontrol
+
+    # programming
+    gitAndTools.gitFull
+    gitAndTools.qgit
+
+    # fonts
+    cantarell-fonts
+    dejavu_fonts
+    freefont_ttf
+    liberation_ttf
+    libertine
+    montserrat
+    noto-fonts
+    noto-fonts-emoji
+    noto-fonts-extra
+    raleway
+    roboto
+    source-code-pro
+    source-sans-pro
+    source-serif-pro
+    # TODO titillium
+    ttf_bitstream_vera
+    ubuntu_font_family
   ];
 
   additionalPackages = with pkgs; [
+    # multimedia
+    audacity
+    mumble
+    vlc
+
+    # productivity
+    gnucash
   ];
 
 in {
@@ -43,11 +106,10 @@ in {
     minimal = mkBoolOpt "Whether to apply a limited application selection.";
   };
 
-  config = {
+  config = mkIf cfg.enabled {
 
     environment.systemPackages = essentialPackages ++ (optionals cfg.minimal additionalPackages);
 
-    ############################################################################
     # systemd: don't block for 90s when a service does not shut down in a timely fashion
     systemd.extraConfig = ''
       DefaultTimeoutStopSec=15s
@@ -62,6 +124,29 @@ in {
         RuntimeMaxUse=100M
       '';
     };
+
+    # setup audio stack
+    hardware.pulseaudio = {
+      enable = true;
+      zeroconf.discovery.enable = true;
+    };
+    services.avahi.enable = true;
+
+    # setup keyboard layout
+    services.xserver = {
+      layout     = "us";
+      xkbVariant = "altgr-intl";
+      xkbOptions = "caps:escape";
+    };
+
+    # apply keyboard layout settings to Sway
+    environment.sessionVariables = let cfg = config.services.xserver; in {
+      XKB_DEFAULT_LAYOUT  = cfg.layout;
+      XKB_DEFAULT_VARIANT = cfg.xkbVariant;
+      XKB_DEFAULT_OPTIONS = cfg.xkbOptions;
+    };
+
+    # TODO port nightwatch from hologram-base-gui?
 
   };
 
