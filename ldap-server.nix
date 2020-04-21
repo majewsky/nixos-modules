@@ -64,7 +64,6 @@ in {
 
     security.acme.certs.${cfg.ldapDomainName} = {
       webroot = "/var/lib/acme/acme-challenge"; # TODO pull this value from default of services.nginx.virtualHosts.<name>.acmeRoot?
-      plugins = [ "key.pem" "chain.pem" "cert.pem" "account_key.json" "account_reg.json" ];
       postRun = ''
         cat ${dstRootCA_X3} chain.pem > complete-chain.pem
         systemctl restart portunus.service
@@ -72,7 +71,7 @@ in {
     };
 
     systemd.services.portunus = let
-      acmeDirectory = config.security.acme.certs.${cfg.ldapDomainName}.directory;
+      acmeDirectory = "/var/lib/acme/${cfg.ldapDomainName}";
     in {
       environment = {
         PORTUNUS_SLAPD_TLS_CA_CERTIFICATE = "${acmeDirectory}/complete-chain.pem";
