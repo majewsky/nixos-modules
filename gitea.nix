@@ -92,11 +92,6 @@ in {
       fi
     '';
 
-    my.hardening.gitea = {
-      allowInternetAccess = true; # to bind HTTP
-      allowWriteAccessTo = [ "/var/lib/gitea" ];
-    };
-
     services.nginx.virtualHosts.${cfg.domain} = {
       forceSSL = true;
       enableACME = true;
