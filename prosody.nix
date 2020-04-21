@@ -23,6 +23,8 @@ in {
 
   config = mkIf (cfg.domainName != null) {
 
+    nixpkgs.config.allowBroken = true; # TODO: luaexpat is marked as broken, but required by Prosody
+
     networking.firewall.allowedTCPPorts = [ 5222 5269 ]; # xmpp-client and xmpp-server
 
     services.prosody = {
