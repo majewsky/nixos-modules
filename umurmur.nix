@@ -9,7 +9,7 @@ let
   cfg = config.my.services.umurmur;
 
   configFile = pkgs.writeText "umurmurd.conf" ''
-    max_bandwidth = 72000;
+    max_bandwidth = 128000;
     welcometext   = "${cfg.welcomeText}";
     certificate   = "/var/lib/umurmur/tls.crt";
     private_key   = "/var/lib/umurmur/tls.key";
