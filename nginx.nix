@@ -23,9 +23,7 @@ in {
     fqdnLocations = mkOption {
       description = "extra location blocks that get added to the virtual host corresponding to the FQDN (this is where infrastructure services without their own domain can be mounted)";
       default = {};
-      type = if config.system.stateVersion == "19.09"
-        then (builtins.head options.services.nginx.virtualHosts.type.getSubModules).submodule.options.locations.type
-        else (builtins.head (builtins.head options.services.nginx.virtualHosts.type.getSubModules).imports).options.locations.type;
+      type = (builtins.head (builtins.head options.services.nginx.virtualHosts.type.getSubModules).imports).options.locations.type;
     };
   };
 

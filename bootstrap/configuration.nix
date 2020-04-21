@@ -13,11 +13,7 @@
 
   networking.hostName = "TODO";
 
-  i18n = {
-    consoleFont = "Lat2-Terminus16";
-    consoleKeyMap = "us";
-    defaultLocale = "de_DE.UTF-8";
-  };
+  i18n.defaultLocale = "de_DE.UTF-8";
   time.timeZone = "Europe/Berlin";
   services.openssh.enable = true;
 
@@ -36,5 +32,5 @@
     openssh.authorizedKeys.keys = [ "TODO" ];
   };
 
-  system.stateVersion = "19.03";
+  system.stateVersion = "20.03";
 }

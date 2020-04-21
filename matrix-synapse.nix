@@ -50,16 +50,6 @@ in {
 
       allow_guest_access = false;
       enable_registration = false;
-
-      package = mkIf (config.system.stateVersion == "19.09") (pkgs.matrix-synapse.override {
-        python3 = pkgs.python3 // {
-          pkgs = pkgs.python3.pkgs // {
-            pysaml2 = pkgs.python3.pkgs.pysaml2.overrideDerivation (oldAttrs: {
-              installCheckPhase = "${pkgs.coreutils}/bin/true";
-            });
-          };
-        };
-      });
     };
     # TODO: hardening
 
