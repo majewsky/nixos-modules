@@ -49,9 +49,6 @@ with lib; {
 
     # misc
     services.haveged.enable = true;
-
-    # TODO chown 1001:users /home/stefan
-    users.users.stefan.uid = mkOverride 1000;
   };
 
 }
