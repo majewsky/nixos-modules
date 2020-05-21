@@ -220,9 +220,9 @@ in {
     ];
 
     ############################################################################
-    # daily health-check that reports to Matrix chat
+    # daily health-check that reports to Matrix chat (only for servers, not for workstations)
 
-    systemd.services.auto-health-check = {
+    systemd.services.auto-health-check = mkIf (!config.my.workstation.enabled) {
       description = "daily health check that reports to Matrix chat";
       requires = [ "network-online.target" ];
       after = [ "network.target" "network-online.target" ];
@@ -243,7 +243,9 @@ in {
 
     # health check is triggered periodically by `startAt` above, but should
     # also report on reboot
-    systemd.timers.auto-health-check.timerConfig.OnStartupSec = "1min";
+    systemd.timers.auto-health-check = mkIf(!config.my.workstation.enabled) {
+      timerConfig.OnStartupSec = "1min";
+    };
 
   };
 

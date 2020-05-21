@@ -46,10 +46,7 @@ let
 
     # GUI programs
     firefox
-    gnuplot
-    # TODO gvim
-    mupdf
-    screen-message
+    gnuplot # TODO gvim mupdf screen-message
 
     # image viewing/manipulation
     graphviz
@@ -95,6 +92,16 @@ let
 
     # productivity
     gnucash
+
+    # TODO
+    sway
+    swaylock
+    mako
+    dmenu
+    grim
+    i3status-rust
+    xwayland
+    kdeApplications.konsole
   ];
 
 in {
@@ -108,7 +115,10 @@ in {
 
   config = mkIf cfg.enabled {
 
-    environment.systemPackages = essentialPackages ++ (optionals cfg.minimal additionalPackages);
+    # TODO
+    programs.sway.enable = true;
+
+    environment.systemPackages = essentialPackages ++ (optionals (!cfg.minimal) additionalPackages);
 
     # systemd: don't block for 90s when a service does not shut down in a timely fashion
     systemd.extraConfig = ''
