@@ -122,7 +122,7 @@ in {
       traceroute
       tree
       units
-      vim
+      (if config.my.workstation.enabled then vimHugeX else vim)
       wget
       zsh
     ];
