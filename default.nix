@@ -48,6 +48,7 @@ in {
     ./matrix-synapse.nix
     ./minecraft-server.nix
     ./monitoring.nix
+    ./nextcloud.nix
     ./nginx.nix
     ./plain-websites.nix
     ./prometheus.nix
