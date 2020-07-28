@@ -33,11 +33,11 @@ in {
     services.postgresql = {
       enable = true;
       dataDir = "/var/lib/postgresql";
-      package = pkgs.postgresql_11;
-      initialScript = pkgs.writeText "alltag-postgres-init.sql" ''
-        CREATE USER alltag;
-        CREATE DATABASE alltag OWNER alltag ENCODING 'utf-8' LC_COLLATE 'en_US.UTF-8' LC_CTYPE 'en_US.UTF-8' TEMPLATE template0;
-      '';
+      ensureDatabases = [ "alltag" ];
+      ensureUsers = [{
+        name = "alltag";
+        ensurePermissions."DATABASE alltag" = "ALL PRIVILEGES";
+      }];
     };
 
     systemd.services.alltag = {

@@ -8,8 +8,6 @@ let
 
   cfg = config.my.services.nextcloud;
 
-  internalListenPort = 21147;
-
 in {
 
   options.my.services.nextcloud = {
@@ -21,11 +19,46 @@ in {
   };
 
   config = mkIf (cfg.domainName != null) {
+
     services.nginx.virtualHosts.${cfg.domainName} = {
       forceSSL = true;
       enableACME = true;
-      locations."/".proxyPass = "http://[::1]:${toString internalListenPort}";
+      # NOTE: the rest is configured by services.nextcloud.nginx.enable
     };
+
+    services.postgresql = {
+      enable = true;
+      dataDir = "/var/lib/postgresql";
+      ensureDatabases = [ "nextcloud" ];
+      ensureUsers = [{
+        name = "nextcloud";
+        ensurePermissions."DATABASE nextcloud" = "ALL PRIVILEGES";
+      }];
+    };
+
+    # ensure that postgres is running *before* running the setup
+    systemd.services."nextcloud-setup" = {
+      requires = ["postgresql.service"];
+      after    = ["postgresql.service"];
+    };
+
+    services.nextcloud = {
+      enable = true;
+      hostName = cfg.domainName;
+      nginx.enable = true;
+      package = pkgs.nextcloud19;
+
+      # NOTE: services.nextcloud.config is only used for the initial setup, afterwards Nextcloud's stateful config takes precedence
+      config = {
+        dbtype = "pgsql";
+        dbuser = "nextcloud";
+        dbhost = "/run/postgresql";
+        dbname = "nextcloud";
+        adminpassFile = toString /root/nextcloud-root-password;
+        adminuser = "root";
+      };
+    };
+
   };
 
 }

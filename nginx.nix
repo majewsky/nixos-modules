@@ -55,6 +55,7 @@ in {
       };
     };
     my.hardening.nginx = {
+      allowUnixDomainSockets = true; # for FastCGI (NextCloud)
       allowInternetAccess = true; # to bind HTTP(S)
       allowWriteAccessTo = [ "/var/spool/nginx" ];
     };
