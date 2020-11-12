@@ -43,35 +43,43 @@ in {
       # NOTE: default log mode is "console" since Gitea 1.9
       log.level = "Info";
 
-      # security/privacy hardening, and enable user sync job for LDAP
-      extraConfig = ''
-        [repository.upload]
-        ENABLED = false
+      # security/privacy hardening
+      settings = {
+        "repository.upload" = {
+          ENABLED = false;
+        };
 
-        [ssh.minimum_key_sizes]
-        ; reject insecure keys
-        DSA     = -1
-        ECDSA   = -1
-        ED25519 = 256
-        RSA     = 4096
+        # reject insecure keys
+        "ssh.minimum_key_sizes" = {
+          DSA = -1;
+          ECDSA = -1;
+          ED25519 = 256;
+          RSA = 4096;
+        };
 
-        [service]
-        REQUIRE_SIGNIN_VIEW = true
+        "service" = {
+          REQUIRE_SIGNIN_VIEW = true;
+        };
 
-        [picture]
-        DISABLE_GRAVATAR = true
+        "picture" = {
+          DISABLE_GRAVATAR = true;
+        };
 
-        [api]
-        ENABLE_SWAGGER = false
+        "api" = {
+          ENABLE_SWAGGER = false;
+        };
 
-        [oauth2]
-        ENABLE = false
+        "oauth2" = {
+          ENABLE = false;
+        };
 
-        [cron.sync_external_users]
-        RUN_AT_START = true
-        SCHEDULE = @every 1h
-        UPDATE_EXISTING = true
-      '';
+        # enable user sync job for LDAP
+        "cron.sync_external_users" = {
+          RUN_AT_START = true;
+          SCHEDULE = "@every 1h";
+          UPDATE_EXISTING = true;
+        };
+      };
     };
 
     # LDAP authentication cannot be set up declaratively, so we have to do it
