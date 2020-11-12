@@ -22,28 +22,30 @@ let
 
   toSystemdServiceConfig = serviceName: opts: {
     serviceConfig = {
-      LockPersonality = "yes";
-      MemoryDenyWriteExecute = "yes";
-      NoNewPrivileges = "yes";
-      PrivateDevices = "yes";
-      PrivateTmp = "yes";
-      ProtectControlGroups = "yes";
-      ProtectHome = "yes";
-      ProtectHostname = "yes";
-      ProtectKernelLogs = "yes";
-      ProtectKernelModules = "yes";
-      ProtectKernelTunables = "yes";
+      LockPersonality = true;
+      MemoryDenyWriteExecute = true;
+      NoNewPrivileges = true;
+      PrivateDevices = true;
+      PrivateTmp = true;
+      ProtectControlGroups = true;
+      ProtectHome = true;
+      ProtectHostname = true;
+      ProtectKernelLogs = true;
+      ProtectKernelModules = true;
+      ProtectKernelTunables = true;
       ProtectSystem = "strict";
-      RemoveIPC = "yes";
+      RemoveIPC = true;
       ReadWritePaths = concatStringsSep " " opts.allowWriteAccessTo;
-      RestrictAddressFamilies = concatStringsSep " " (
+      RestrictAddressFamilies = (
         (optional opts.allowUnixDomainSockets "AF_UNIX")
         ++
-        (optional opts.allowInternetAccess "AF_INET AF_INET6")
+        (optional opts.allowInternetAccess "AF_INET")
+        ++
+        (optional opts.allowInternetAccess "AF_INET6")
       );
-      RestrictNamespaces = "yes";
-      RestrictRealtime = "yes";
-      RestrictSUIDSGID = "yes";
+      RestrictNamespaces = true;
+      RestrictRealtime = true;
+      RestrictSUIDSGID = true;
       SystemCallArchitectures = "native";
       SystemCallErrorNumber = "EPERM";
       SystemCallFilter = "@system-service";
