@@ -42,6 +42,7 @@ in {
       extraConfig = ''
         authentication = "internal_hashed";
       '';
+      xmppComplianceSuite = false; # TODO make the compliance suite happy or remove prosody altogether
     };
 
     # to get an ACME cert, we need to add a dummy vhost to the nginx config

@@ -23,7 +23,7 @@ in {
     services.nginx.virtualHosts.${cfg.domainName} = {
       forceSSL = true;
       enableACME = true;
-      # NOTE: the rest is configured by services.nextcloud.nginx.enable
+      # NOTE: the rest is configured by services.nextcloud.enable
     };
 
     services.postgresql = {
@@ -45,7 +45,6 @@ in {
     services.nextcloud = {
       enable = true;
       hostName = cfg.domainName;
-      nginx.enable = true;
       package = pkgs.nextcloud19;
 
       # NOTE: services.nextcloud.config is only used for the initial setup, afterwards Nextcloud's stateful config takes precedence
