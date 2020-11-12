@@ -62,13 +62,19 @@ in {
       locations."/".proxyPass = "http://[::1]:${toString internalListenPort}";
     };
 
-    security.acme.certs.${cfg.ldapDomainName} = {
-      webroot = "/var/lib/acme/acme-challenge"; # TODO pull this value from default of services.nginx.virtualHosts.<name>.acmeRoot?
-      postRun = ''
-        cat ${dstRootCA_X3} chain.pem > complete-chain.pem
-        systemctl restart portunus.service
+    # to get an ACME cert, we need to add a dummy vhost to the nginx config
+    services.nginx.virtualHosts.${cfg.ldapDomainName} = mkDefault {
+      forceSSL = true;
+      enableACME = true;
+      locations."/".extraConfig = ''
+        deny all;
+        return 404;
       '';
     };
+    security.acme.certs.${cfg.ldapDomainName}.postRun = ''
+      cat ${dstRootCA_X3} chain.pem > complete-chain.pem
+      systemctl restart portunus.service
+    '';
 
     systemd.services.portunus = let
       acmeDirectory = "/var/lib/acme/${cfg.ldapDomainName}";
