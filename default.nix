@@ -43,6 +43,7 @@ in {
     ./gitea.nix
     ./grafana.nix
     ./hardening.nix
+    ./jitsi-meet.nix
     ./ldap-client.nix
     ./ldap-server.nix
     ./matrix-synapse.nix
