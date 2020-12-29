@@ -1,19 +1,19 @@
-{ stdenv, fetchurl, go }:
+{ stdenv, buildGoModule, fetchFromGitHub }:
 
-stdenv.mkDerivation rec {
-  name = "vt6-website-build-${version}";
-  version = "5";
+buildGoModule rec {
+  pname = "vt6-website-build";
+  version = "6";
 
-  src = fetchurl {
-    url = "https://github.com/vt6/website/archive/v${version}.tar.gz";
-    sha256 = "1sxy4nqy89s46bbr5ikp759844z1ihsr6hzlj70lzp9d2j3idywk";
+  src = fetchFromGitHub {
+    owner = "vt6";
+    repo = "website";
+    rev = "v${version}";
+    sha256 = "0azflismcv9lpgb7xpm8cqyg5jqb33m8g627c54kjx4gj39plwm9";
   };
 
-  buildInputs = [ go ];
-  makeFlags = [ "PREFIX=$(out)" ];
-  preBuild = ''
-    makeFlagsArray+=(GOCACHE="$PWD/gocache" GO_BUILDFLAGS="-mod vendor")
-  '';
+  vendorSha256 = null;
+  doCheck = false;
+  subPackages = [ "." ];
 
   meta = with stdenv.lib; {
     description = "Renderer for vt6.io";
