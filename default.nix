@@ -2,6 +2,8 @@
 # REPLACES hologram-base
 # REPLACES hologram-openssh
 
+# TODO https://gitlab.com/simple-nixos-mailserver/nixos-mailserver
+
 { config, pkgs, lib, ... }:
 
 with lib;
