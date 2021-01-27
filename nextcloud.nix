@@ -55,6 +55,7 @@ in {
         dbname = "nextcloud";
         adminpassFile = toString /root/nextcloud-root-password;
         adminuser = "root";
+        overwriteProtocol = "https";
       };
     };
 
