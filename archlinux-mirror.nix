@@ -41,7 +41,6 @@ let
       --exclude='*.links.tar.gz*' \
       --exclude='/other' \
       --exclude='/sources' \
-      --exclude='/iso' \
       "${cfg.upstreamRsyncUrl}/" \
       "${docroot}/"
   '';
