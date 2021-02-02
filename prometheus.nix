@@ -79,7 +79,7 @@ let
 
   instances = {
     prometheus-collector = { port = collectorPort; configYAML = collectorConfigYAML; retention = "1h";  };
-    prometheus-persister = { port = persisterPort; configYAML = persisterConfigYAML; retention = "60d"; };
+    prometheus-persister = { port = persisterPort; configYAML = persisterConfigYAML; retention = "365d"; };
   };
 
 in {
