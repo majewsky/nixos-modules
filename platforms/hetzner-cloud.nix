@@ -19,7 +19,7 @@ with lib; {
   config = {
     # the current LTS kernel in 20.09 does not have the builtin Wireguard
     # module, so use a newer kernel that does
-    boot.kernelPackages = mkIf (config.system.stateVersion == "20.09") pkgs.linuxPackages_5_9;
+    boot.kernelPackages = mkIf (config.system.stateVersion == "20.09") pkgs.linuxPackages_5_10;
 
     # use Grub bootloader
     boot.loader.grub = {
