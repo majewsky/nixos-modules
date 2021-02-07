@@ -53,7 +53,7 @@ in {
         dbuser = "nextcloud";
         dbhost = "/run/postgresql";
         dbname = "nextcloud";
-        adminpassFile = toString /root/nextcloud-root-password;
+        adminpassFile = toString /var/lib/nextcloud-root-password;
         adminuser = "root";
         overwriteProtocol = "https";
       };
