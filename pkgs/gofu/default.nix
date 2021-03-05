@@ -2,11 +2,11 @@
 
 stdenv.mkDerivation rec {
   name = "gofu-${version}";
-  version = "2020.1";
+  version = "2021.2";
 
   src = fetchurl {
     url = "https://github.com/majewsky/gofu/archive/v${version}.tar.gz";
-    sha256 = "1wgy04fnc74n7b2j2v3syci8aqdkizp34wp38l2lwzhn3p8pglx9";
+    sha256 = "0610hcxl3y8gxlbv9i26rbg79wfixvav06mlcxr3qgq18vbvj1hb";
   };
 
   buildInputs = [ go ];
