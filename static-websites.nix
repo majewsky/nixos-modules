@@ -180,6 +180,8 @@ in {
       serverAliases = if (builtins.length (splitString "." domainName)) == 2 then [ "www.${domainName}" ] else [];
 
       extraConfig = ''
+        charset utf-8;
+
         # recommended HTTP headers according to https://securityheaders.io
         add_header Strict-Transport-Security "max-age=15768000; includeSubDomains" always; # six months
         add_header X-Frame-Options "SAMEORIGIN" always;
