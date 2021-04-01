@@ -20,12 +20,16 @@ in {
 
   config = mkIf (cfg.domainsWithAccessLog != []) {
     services.nginx.commonHttpConfig = ''
-      log_format gdpr-compliant '[$time_iso8601] "$host$uri" "$http_user_agent"';
+      map $status $loggable {
+        ~^[23]  1;
+        default 0;
+      }
+      log_format gdpr-compliant '[$time_iso8601] "$host$uri"';
     '';
 
     services.nginx.virtualHosts = genAttrs cfg.domainsWithAccessLog (domainName: {
       extraConfig = ''
-        access_log /var/log/nginx/access.log gdpr-compliant;
+        access_log /var/log/nginx/access.log gdpr-compliant if=$loggable;
       '';
     });
   };
