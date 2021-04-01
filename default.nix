@@ -53,6 +53,7 @@ in {
     ./monitoring.nix
     ./nextcloud.nix
     ./nginx.nix
+    ./nginx-minimal-logging.nix
     ./plain-websites.nix
     ./prometheus.nix
     ./prosody.nix

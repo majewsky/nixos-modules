@@ -45,6 +45,8 @@ in {
       appendHttpConfig = ''
         access_log off;
         error_log stderr crit;
+
+        proxy_headers_hash_bucket_size 128;
       '';
 
       virtualHosts."${cfg.fqdn}" = {
@@ -57,7 +59,7 @@ in {
     my.hardening.nginx = {
       allowUnixDomainSockets = true; # for FastCGI (NextCloud)
       allowInternetAccess = true; # to bind HTTP(S)
-      allowWriteAccessTo = [ "/var/spool/nginx" ];
+      allowWriteAccessTo = [ "/var/spool/nginx" "/var/log/nginx" ];
     };
 
   };
