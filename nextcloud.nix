@@ -45,7 +45,7 @@ in {
     services.nextcloud = {
       enable = true;
       hostName = cfg.domainName;
-      package = pkgs.nextcloud20;
+      package = pkgs.nextcloud21;
 
       # NOTE: services.nextcloud.config is only used for the initial setup, afterwards Nextcloud's stateful config takes precedence
       config = {
@@ -56,6 +56,7 @@ in {
         adminpassFile = toString /var/lib/nextcloud-root-password;
         adminuser = "root";
         overwriteProtocol = "https";
+        defaultPhoneRegion = "DE";
       };
     };
 
