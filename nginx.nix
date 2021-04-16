@@ -47,6 +47,9 @@ in {
         error_log stderr crit;
 
         proxy_headers_hash_bucket_size 128;
+
+        # obstruct Google surveillance
+        add_header Permissions-Policy "interest-cohort=()" always;
       '';
 
       virtualHosts."${cfg.fqdn}" = {
