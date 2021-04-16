@@ -20,6 +20,12 @@ let
       default = true;
       type = types.bool;
     };
+
+    onlySSL = mkOption {
+      description = "whether to upgrade all HTTP connections to HTTPS through 301 responses";
+      default = true;
+      type = types.bool;
+    };
   };
 
 in {
@@ -39,7 +45,8 @@ in {
   config = mkIf (cfg.sites != {}) {
 
     services.nginx.virtualHosts = mapAttrs (domainName: domainOpts: {
-      forceSSL = true;
+      addSSL = !domainOpts.onlySSL;
+      forceSSL = domainOpts.onlySSL;
       enableACME = true;
 
       locations."/".root = "${domainOpts.docroot}";
