@@ -192,6 +192,9 @@ in {
 
         # CSP includes unsafe-inline to allow <style> tags in hand-written HTML
         add_header Content-Security-Policy "default-src 'self' 'unsafe-inline'; img-src 'self' data:;" always;
+
+        # hamper Google surveillance
+        add_header Permissions-Policy "interest-cohort=()" always;
       '';
     }) cfg.sites;
 
