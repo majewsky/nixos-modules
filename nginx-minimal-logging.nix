@@ -24,7 +24,7 @@ in {
         ~^[23]  1;
         default 0;
       }
-      log_format gdpr-compliant '[$time_iso8601] "$host$uri"';
+      log_format gdpr-compliant '[$time_iso8601] $request_method "$host$uri"';
     '';
 
     services.nginx.virtualHosts = genAttrs cfg.domainsWithAccessLog (domainName: {
