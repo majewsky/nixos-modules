@@ -65,6 +65,8 @@ in {
       allowWriteAccessTo = [ "/var/spool/nginx" "/var/log/nginx" ];
     };
 
+    users.users.stefan.extraGroups = [ "nginx" ]; # to read access logs
+
   };
 
 }
