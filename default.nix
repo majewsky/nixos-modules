@@ -123,6 +123,7 @@ in {
       rsync
       screen
       strace
+      sqlite-interactive
       tcpdump
       traceroute
       tree
