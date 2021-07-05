@@ -27,6 +27,7 @@ in {
     };
 
     services.postgresql = {
+      package = pkgs.postgresql_11;
       enable = true;
       dataDir = "/var/lib/postgresql";
       ensureDatabases = [ "nextcloud" ];
