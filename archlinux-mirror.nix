@@ -67,10 +67,11 @@ in {
   config = mkIf enable {
 
     users.users.archlinux-mirror = {
-      description = "archlinux-mirror service user";
-      group       = "nogroup";
-      home        = homeDir;
-      createHome  = true;
+      description  = "archlinux-mirror service user";
+      group        = "nogroup";
+      home         = "${homeDir}/home"; # this used to be just `homeDir`, but since 21.05, `createHome` enforces 0700 perms
+      createHome   = true;              # on the homeDir, which conflicts with nginx looking in the docroot
+      isSystemUser = true;
     };
 
     systemd.services.archlinux-mirror-early = {

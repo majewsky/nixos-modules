@@ -80,6 +80,7 @@ in {
   config = mkIf cfg.enable {
 
     users.users.openldap = mkIf (cfg.ldap.user == "openldap") {
+      isSystemUser = true;
       name  = cfg.ldap.user;
       group = cfg.ldap.group;
       uid   = config.ids.uids.openldap;
