@@ -59,10 +59,10 @@ in {
         locations = cfg.fqdnLocations;
       };
     };
-    my.hardening.nginx = {
-      allowUnixDomainSockets = true; # for FastCGI (NextCloud)
-      allowInternetAccess = true; # to bind HTTP(S)
-      allowWriteAccessTo = [ "/var/spool/nginx" "/var/log/nginx" ];
+
+    # extra hardening (most hardening is in the upstream module at this point)
+    systemd.services.nginx.serviceConfig = {
+      ReadWritePaths = "/var/spool/nginx /var/log/nginx";
     };
 
     users.users.stefan.extraGroups = [ "nginx" ]; # to read access logs
