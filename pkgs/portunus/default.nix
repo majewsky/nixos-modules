@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, go }:
+{ stdenv, lib, fetchurl, go }:
 
 stdenv.mkDerivation rec {
   name = "portunus-${version}";
@@ -15,7 +15,7 @@ stdenv.mkDerivation rec {
     makeFlagsArray+=(GOCACHE="$PWD/gocache" GO_BUILDFLAGS="-mod vendor")
   '';
 
-  meta = with stdenv.lib; {
+  meta = with lib; {
     description = "Self-contained user/group management and authentication service";
     homepage = https://github.com/majewsky/portunus/;
     license = licenses.gpl3Plus;

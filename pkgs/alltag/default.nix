@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, go, go-bindata, sassc }:
+{ stdenv, lib, fetchurl, go, go-bindata, sassc }:
 
 stdenv.mkDerivation rec {
   name = "alltag-${version}";
@@ -15,7 +15,7 @@ stdenv.mkDerivation rec {
     makeFlagsArray+=(GOCACHE="$PWD/gocache" GO_BUILDFLAGS="-mod vendor")
   '';
 
-  meta = with stdenv.lib; {
+  meta = with lib; {
     description = "The ADHD-friendly issue tracker";
     homepage = https://github.com/majewsky/alltag/;
     license = licenses.gpl3Plus;

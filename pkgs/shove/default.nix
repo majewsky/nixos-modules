@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, go }:
+{ stdenv, lib, fetchurl, go }:
 
 stdenv.mkDerivation rec {
   name = "shove-${version}";
@@ -15,7 +15,7 @@ stdenv.mkDerivation rec {
     makeFlagsArray+=(GOCACHE="$PWD/gocache" GO_BUILDFLAGS="-mod vendor")
   '';
 
-  meta = with stdenv.lib; {
+  meta = with lib; {
     description = "GitHub webhook receiver";
     homepage = https://github.com/majewsky/shove/;
     license = licenses.asl20;

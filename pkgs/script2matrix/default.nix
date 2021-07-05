@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, go }:
+{ stdenv, lib, fetchurl, go }:
 
 stdenv.mkDerivation rec {
   name = "script2matrix-${version}";
@@ -15,7 +15,7 @@ stdenv.mkDerivation rec {
     makeFlagsArray+=(GOCACHE="$PWD/gocache" GO_BUILDFLAGS="-mod vendor")
   '';
 
-  meta = with stdenv.lib; {
+  meta = with lib; {
     description = "Runs a script and sends its stdout to a Matrix chat.";
     homepage = https://github.com/majewsky/script2matrix/;
     license = licenses.gpl3Plus;

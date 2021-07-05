@@ -1,4 +1,4 @@
-{ stdenv, buildGoModule, fetchFromGitHub }:
+{ stdenv, lib, buildGoModule, fetchFromGitHub }:
 
 buildGoModule rec {
   pname = "vt6-website-build";
@@ -15,7 +15,7 @@ buildGoModule rec {
   doCheck = false;
   subPackages = [ "." ];
 
-  meta = with stdenv.lib; {
+  meta = with lib; {
     description = "Renderer for vt6.io";
     homepage = https://github.com/vt6/website/;
     license = licenses.gpl3Plus;
