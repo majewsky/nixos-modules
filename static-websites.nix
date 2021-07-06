@@ -119,8 +119,7 @@ in {
       group = "shove";
       isSystemUser = true;
       description = "system user for shove (GitHub webhook handler)";
-      home = homeDir;
-      createHome = true;
+      home = "/var/empty";
     };
 
     systemd.services."shove-early" = {
