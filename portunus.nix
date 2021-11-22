@@ -80,20 +80,23 @@ in {
   config = mkIf cfg.enable {
 
     users.users.openldap = mkIf (cfg.ldap.user == "openldap") {
-      isSystemUser = true;
+      # isSystemUser = true;
       name  = cfg.ldap.user;
       group = cfg.ldap.group;
-      uid   = config.ids.uids.openldap;
+      uid   = 99; # config.ids.uids.openldap;
+      # ^ FIXME: For reasons beyond my understanding, specifying `uid = config.ids.uids.openldap` worked fine in 20.09, but breaks in 21.05 with `error: attribute 'openldap' missing`
     };
     users.groups.openldap = mkIf (cfg.ldap.user == "openldap") {
       name  = cfg.ldap.group;
-      gid   = config.ids.gids.openldap;
+      gid   = 99; # config.ids.gids.openldap;
+      # ^ FIXME: For reasons beyond my understanding, specifying `gid = config.ids.gids.openldap` worked fine in 20.09, but breaks in 21.05 with `error: attribute 'openldap' missing`
     };
 
     users.users.portunus = mkIf (cfg.user == "portunus") {
       name  = cfg.user;
       group = cfg.group;
     # uid   = config.ids.uids.portunus;
+      isSystemUser = true;
     };
     users.groups.portunus = mkIf (cfg.user == "portunus") {
       name  = cfg.group;
