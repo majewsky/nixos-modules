@@ -33,7 +33,8 @@ in {
       packages = [ pkgs.jre8 ];
     };
 
-    networking.firewall.allowedTCPPorts = [ 25565 ];
+    # TODO disabled because of log4shell vuln
+    # networking.firewall.allowedTCPPorts = [ 25565 ];
 
     # need lingering session to keep minecraft@.service running
     systemd.services.minecraft-early = {
