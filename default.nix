@@ -48,7 +48,6 @@ in {
     ./ldap-client.nix
     ./ldap-server.nix
     ./matrix-synapse.nix
-    ./minecraft-server.nix
     ./monitoring.nix
     ./nextcloud.nix
     ./nginx.nix
