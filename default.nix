@@ -38,7 +38,6 @@ let
 in {
 
   imports = [
-    ./alltag.nix
     ./archlinux-mirror.nix
     ./borgbackup-sender.nix
     ./gitconfig.nix
@@ -56,7 +55,6 @@ in {
     ./nginx-minimal-logging.nix
     ./plain-websites.nix
     ./prometheus.nix
-    ./prosody.nix
     ./static-websites.nix
     ./vt6-website.nix
     ./workstation.nix

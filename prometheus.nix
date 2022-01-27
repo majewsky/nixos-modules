@@ -7,8 +7,6 @@
 # - The prometheus-persister federates selected metrics from the collector and
 #   stores them for a long time. This is the datasource of choice for Grafana.
 
-# TODO alertmanager, prometheus-xmpp-alerts
-
 { config, pkgs, lib, ... }:
 
 with lib;
