@@ -179,7 +179,7 @@ in {
       serverAliases = if (builtins.length (splitString "." domainName)) == 2 then [ "www.${domainName}" ] else [];
 
       extraConfig = let
-        defaultCSPs = ["default-src 'self' 'unsafe-inline';" "img-src 'self' data:;"]
+        defaultCSPs = ["default-src 'self' 'unsafe-inline';" "img-src 'self' data:;"];
       in ''
         charset utf-8;
 
