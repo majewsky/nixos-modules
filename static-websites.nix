@@ -49,16 +49,16 @@ let
       type = types.str;
     };
 
-    deployKey = mkOption {
-      description = "a private SSH key that is used to clone this private repository";
-      default = null;
-      type = types.nullOr types.str;
-    };
-
     buildCommand = mkOption {
       description = "path to alternate build script, invoked with arguments: repository directory, target directory";
       default = toString link-repo-sh;
       type = types.str;
+    };
+
+    extraCSPs = mkOption {
+      description = "extra Content-Security-Policy directives to apply to this domain";
+      default = [];
+      type = types.listOf types.str;
     };
   };
 
@@ -178,7 +178,9 @@ in {
       # for TLDs like example.com, support the alias www.example.com
       serverAliases = if (builtins.length (splitString "." domainName)) == 2 then [ "www.${domainName}" ] else [];
 
-      extraConfig = ''
+      extraConfig = let
+        defaultCSPs = ["default-src 'self' 'unsafe-inline';" "img-src 'self' data:;"]
+      in ''
         charset utf-8;
 
         # recommended HTTP headers according to https://securityheaders.io
@@ -190,7 +192,7 @@ in {
         add_header Feature-Policy "accelerometer 'none', ambient-light-sensor 'none', autoplay 'none', camera 'none', document-domain 'none', encrypted-media 'none', fullscreen 'none', geolocation 'none', gyroscope 'none', magnetometer 'none', microphone 'none', midi 'none', payment 'none', picture-in-picture 'none', sync-xhr 'none', usb 'none', vibrate 'none', vr 'none'" always;
 
         # CSP includes unsafe-inline to allow <style> tags in hand-written HTML
-        add_header Content-Security-Policy "default-src 'self' 'unsafe-inline'; img-src 'self' data:;" always;
+        add_header Content-Security-Policy "${concatStringsSep " " (defaultCSPs ++ domainOpts.extraCSPs)}" always;
 
         # hamper Google surveillance
         add_header Permissions-Policy "interest-cohort=()" always;
