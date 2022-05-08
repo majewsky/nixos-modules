@@ -10,8 +10,6 @@ with lib;
 
 let
 
-  gofu = pkgs.callPackage ./pkgs/gofu/default.nix {};
-
   bootstrap-devenv = pkgs.writeScriptBin "bootstrap-devenv" ''
     #!/usr/bin/env bash
     set -euo pipefail
