@@ -1,4 +1,4 @@
-{ stdenv, lib, buildGoModule, fetchFromGitHub }:
+{ lib, buildGoModule, fetchFromGitHub }:
 
 buildGoModule rec {
   pname = "vt6-website-build";
@@ -12,8 +12,8 @@ buildGoModule rec {
   };
 
   vendorSha256 = null;
-  doCheck = false;
   subPackages = [ "." ];
+  ldflags = "-s -w";
 
   meta = with lib; {
     description = "Renderer for vt6.io";

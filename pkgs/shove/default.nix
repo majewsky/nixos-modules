@@ -1,19 +1,19 @@
-{ stdenv, lib, fetchurl, go }:
+{ lib, buildGoModule, fetchFromGitHub }:
 
-stdenv.mkDerivation rec {
-  name = "shove-${version}";
+buildGoModule rec {
+  pname = "shove";
   version = "1.0.0";
 
-  src = fetchurl {
-    url = "https://github.com/majewsky/shove/archive/v${version}.tar.gz";
-    sha256 = "0nslc2rhan8sgm30zk9k820887svsafkkn4zc3dhjpz2506h6006";
+  src = fetchFromGitHub {
+    owner = "majewsky";
+    repo = pname;
+    rev = "v${version}";
+    sha256 = "1q4ix15n04f6qd8r2i1ylzgidiaq6xgylz1a8x7pb395d53vkn8b";
   };
 
-  buildInputs = [ go ];
-  makeFlags = [ "PREFIX=$(out)" ];
-  preBuild = ''
-    makeFlagsArray+=(GOCACHE="$PWD/gocache" GO_BUILDFLAGS="-mod vendor")
-  '';
+  vendorSha256 = null;
+  subpackages = [ "." ];
+  ldflags = "-s -w";
 
   meta = with lib; {
     description = "GitHub webhook receiver";

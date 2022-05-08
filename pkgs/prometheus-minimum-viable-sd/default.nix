@@ -1,19 +1,19 @@
-{ stdenv, lib, fetchurl, go }:
+{ lib, buildGoModule, fetchFromGitHub }:
 
-stdenv.mkDerivation rec {
-  name = "prometheus-minimum-viable-sd-${version}";
+buildGoModule rec {
+  pname = "prometheus-minimum-viable-sd";
   version = "1.0.0";
 
-  src = fetchurl {
-    url = "https://github.com/majewsky/prometheus-minimum-viable-sd/archive/v${version}.tar.gz";
-    sha256 = "0h5scm9315826kbj1bpzwa26sh67rb2v9dm1kw9fli2qiynpz410";
+  src = fetchFromGitHub {
+    owner = "majewsky";
+    repo = pname;
+    rev = "v${version}";
+    sha256 = "1j4d7rn0jff4bdwpvb6mszrjb7i123h4kbqhjylr159dpmzqi6h2";
   };
 
-  buildInputs = [ go ];
-  makeFlags = [ "PREFIX=$(out)" ];
-  preBuild = ''
-    makeFlagsArray+=(GOCACHE="$PWD/gocache" GO_BUILDFLAGS="-mod vendor")
-  '';
+  vendorSha256 = null;
+  subpackages = [ "." ];
+  ldflags = "-s -w";
 
   meta = with lib; {
     description = "Minimum Viable service discovery for Prometheus";

@@ -1,19 +1,19 @@
-{ stdenv, lib, fetchurl, go }:
+{ lib, buildGoModule, fetchFromGitHub }:
 
-stdenv.mkDerivation rec {
-  name = "script2matrix-${version}";
+buildGoModule rec {
+  pname = "script2matrix";
   version = "0.1.0";
 
-  src = fetchurl {
-    url = "https://github.com/majewsky/script2matrix/archive/v${version}.tar.gz";
-    sha256 = "1kjhnl1knmyx6ssi6pba0y5vh84jg59wgv11j6cip58pbrccrjav";
+  src = fetchFromGitHub {
+    owner = "majewsky";
+    repo = pname;
+    rev = "v${version}";
+    sha256 = "0h11kfj9yargmma097d96810j6irnsy32zd3a8i6m5n93c1444cj";
   };
 
-  buildInputs = [ go ];
-  makeFlags = [ "PREFIX=$(out)" ];
-  preBuild = ''
-    makeFlagsArray+=(GOCACHE="$PWD/gocache" GO_BUILDFLAGS="-mod vendor")
-  '';
+  vendorSha256 = null;
+  subpackages = [ "." ];
+  ldflags = "-s -w";
 
   meta = with lib; {
     description = "Runs a script and sends its stdout to a Matrix chat.";
