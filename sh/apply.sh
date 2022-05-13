@@ -1,8 +1,6 @@
 #!/bin/bash
 set -euo pipefail
 
-# TODO make this work before nix-install (gpg might be missing, /etc/hostname is not set)
-
 # cleanup old secrets
 install -d -m 0700 /nix/my/unpacked
 find /nix/my/unpacked -type f ! -name key -delete

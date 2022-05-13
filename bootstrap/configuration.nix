@@ -19,9 +19,9 @@
 
   # minimal set of packages require to clone this repo and `make unpack`
   environment.systemPackages = with pkgs; [
+    age
     git
     gnumake
-    gnupg
     vim
   ];
 
