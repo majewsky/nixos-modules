@@ -105,11 +105,11 @@ in {
     };
 
     environment.systemPackages = with pkgs; [
+      age     # for decrypting the secrets in this repo
       bootstrap-devenv
       dnsutils # dig(1), host(1)
       file
-      gnumake # for decrypting the secrets in this repo
-      gnupg   # for decrypting the secrets in this repo
+      gnumake
       gofu
       gptfdisk
       jq
