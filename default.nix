@@ -93,9 +93,15 @@ in {
     # basic setup for interactive use
 
     system.autoUpgrade.enable = mkDefault true;
-    nix.gc = {
-      automatic = mkDefault true;
-      options = "--delete-older-than 3d";
+    nix = {
+      gc = {
+        automatic = mkDefault true;
+        options = "--delete-older-than 3d";
+      };
+      package = pkgs.nixFlakes;
+      extraOptions = ''
+        experimental-features = nix-command flakes
+      '';
     };
 
     environment.systemPackages = with pkgs; [
