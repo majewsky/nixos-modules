@@ -1,6 +1,6 @@
 # nixos-modules
 
-My NixOS modules. Does not use NixOps at the moment, but probably should.
+My NixOS modules.
 
 As a general pattern, everything in the top-level directory gets imported by `default.nix`.
 The modules in `platforms/` only get imported on matching machines.
@@ -14,9 +14,10 @@ sudo install -d -m 0700 -o stefan -g users /x
 git clone https://github.com/majewsky/nixos-modules /x/src/github.com/majewsky/nixos-modules
 ```
 
-Get the machine key from `gpg --decrypt < keys.sh.gpg` in the secrets repo.
+Copy the machine's public key from `/etc/ssh/ssh_host_ed25519_key.pub` into the secrets repo. Re-render and commit the secret payloads.
 
 ```
 cd /x/src/github.com/majewsky/nixos-modules
-make switch # asks for the machine key
+git pull # to get the re-rendered secrets
+make switch
 ```

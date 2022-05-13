@@ -1,5 +1,5 @@
 secrets/*
-!secrets/*.gpg
+!secrets/*.age
 
 # artifacts from `nixos-rebuild build`
 /result
