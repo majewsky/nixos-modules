@@ -107,6 +107,11 @@ in {
       ttf_bitstream_vera
       ubuntu_font_family
     ];
+    fonts.fontconfig.defaultFonts = {
+      serif = [ "Source Serif Pro" ];
+      sansSerif = [ "Source Sans Pro" ];
+      monospace = [ "Iosevka" ];
+    };
 
     services.xserver.enable = true;
     environment.systemPackages = essentialPackages ++ (optionals (!cfg.minimal) additionalPackages);
