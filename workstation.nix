@@ -64,26 +64,6 @@ let
     # programming
     gitAndTools.gitFull
     gitAndTools.qgit
-
-    # fonts
-    cantarell-fonts
-    dejavu_fonts
-    freefont_ttf
-    iosevka
-    liberation_ttf
-    libertine
-    montserrat
-    noto-fonts
-    noto-fonts-emoji
-    noto-fonts-extra
-    raleway
-    roboto
-    source-code-pro
-    source-sans-pro
-    source-serif-pro
-    # TODO titillium
-    ttf_bitstream_vera
-    ubuntu_font_family
   ];
 
   additionalPackages = with pkgs; [
@@ -106,6 +86,27 @@ in {
   };
 
   config = mkIf cfg.enabled {
+
+    fonts.fonts = with pkgs; [
+      cantarell-fonts
+      dejavu_fonts
+      freefont_ttf
+      iosevka
+      liberation_ttf
+      libertine
+      montserrat
+      noto-fonts
+      noto-fonts-emoji
+      noto-fonts-extra
+      raleway
+      roboto
+      source-code-pro
+      source-sans-pro
+      source-serif-pro
+      # TODO titillium
+      ttf_bitstream_vera
+      ubuntu_font_family
+    ];
 
     services.xserver.enable = true;
     environment.systemPackages = essentialPackages ++ (optionals (!cfg.minimal) additionalPackages);
