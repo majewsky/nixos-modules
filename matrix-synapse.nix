@@ -12,9 +12,10 @@ let
 in {
 
   # To enable this module, the machine's configuration.nix must set:
+  # - config.services.matrix-synapse.enable
   # - config.services.matrix-synapse.server_name
   # - config.services.matrix-synapse.macaroon_secret_key
-  config = mkIf (cfg.macaroon_secret_key != null) {
+  config = mkIf (cfg.enable) {
 
     networking.firewall.allowedTCPPorts = [ 8448 ];
 
@@ -35,7 +36,6 @@ in {
 
     services.matrix-synapse = {
       database_type = "sqlite3";
-      enable = true;
 
       listeners = [
         {
