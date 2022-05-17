@@ -42,10 +42,15 @@ let
     xorg.xmodmap
     xorg.xprop
     xorg.xrandr
-    xsel
+
+    # Wayland utilities
+    alacritty
+    bemenu
+    wl-clipboard
+
+    # TODO rest
 
     # GUI programs
-    alacritty
     firefox
     gnuplot # TODO mupdf screen-message
 
