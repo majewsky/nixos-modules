@@ -111,11 +111,13 @@ in {
 
     # select display manager
     services.xserver.displayManager = {
-      defaultSession = if cfg.minimal then "plasma5" else "sway";
+      defaultSession = "sway";
+      autoLogin = {
+        enable = true;
+        user = "stefan";
+      };
       sddm = {
         enable = true;
-        # autoLogin.enable = true;
-        # autoLogin.user = "stefan";
       };
     };
 
@@ -140,9 +142,6 @@ in {
       '';
     };
 
-    # use Plasma desktop (as fallback when something is not working in Wayland)
-    services.xserver.desktopManager.plasma5.enable = true;
-
     # systemd: don't block for 90s when a service does not shut down in a timely fashion
     systemd.extraConfig = ''
       DefaultTimeoutStopSec=15s
@@ -158,17 +157,12 @@ in {
       '';
     };
 
-    # setup audio stack
-    hardware.pulseaudio = {
-      enable = true;
-      zeroconf.discovery.enable = true;
-    };
-    services.avahi.enable = true;
-
-    # setup keyboard layout
-    services.xserver.layout     = "us";
-    services.xserver.xkbVariant = "altgr-intl";
+    # setup console and keyboard layout
+    services.xserver.layout     = "eu";
+    services.xserver.xkbVariant = "";
     services.xserver.xkbOptions = "caps:escape";
+    console.useXkbConfig = true;
+    console.font = "Lat2-Terminus16";
 
     # apply keyboard layout settings to Sway
     environment.sessionVariables = let cfg = config.services.xserver; in {
