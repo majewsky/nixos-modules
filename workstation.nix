@@ -45,8 +45,9 @@ let
     xsel
 
     # GUI programs
+    alacritty
     firefox
-    gnuplot # TODO gvim mupdf screen-message
+    gnuplot # TODO mupdf screen-message
 
     # image viewing/manipulation
     graphviz
