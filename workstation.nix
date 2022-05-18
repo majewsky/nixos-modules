@@ -1,4 +1,4 @@
-# This module is imported by every system where I have physical access.
+# This module is enabled on every system where I have physical access.
 # REPLACES hologram-base-accessible
 # REPLACES hologram-base-gui-minimal
 # TODO hologram-base-gui
@@ -7,8 +7,6 @@
 # TODO hologram-devtools-minimal
 # TODO hologram-dtp
 # TODO hologram-games
-# TODO hologram-kde-desktop-minimal
-# TODO hologram-kde-desktop
 # TODO hologram-sway-desktop
 
 { config, pkgs, lib, ... }:
@@ -130,7 +128,8 @@ in {
     services.xserver.displayManager = {
       defaultSession = "sway";
       autoLogin = {
-        enable = true;
+        # autologin must be disabled for SDDM 0.19, see <https://github.com/sddm/sddm/pull/1496>
+        enable = (lib.versions.majorMinor pkgs.sddm.version) != "0.19";
         user = "stefan";
       };
       sddm = {
