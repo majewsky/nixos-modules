@@ -19,6 +19,9 @@ let
 
   cfg = config.my.workstation;
 
+  pwget = pkgs.callPackage ./pkgs/pwget/default.nix {};
+  pwget2 = pkgs.callPackage ./pkgs/pwget2/default.nix {};
+
   essentialPackages = with pkgs; [
     # command-line utilities
     acpi
@@ -28,8 +31,8 @@ let
     irssi
     iw
     p7zip
-    # TODO pwget
-    # TODO pwget2
+    pwget
+    pwget2
     smartmontools
     sshfs
     unzip
