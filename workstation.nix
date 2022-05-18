@@ -33,8 +33,10 @@ let
     p7zip
     pwget
     pwget2
+    qt5.qttools
     smartmontools
     sshfs
+    pythonPackages.tabulate
     unzip
     whois
     zip
