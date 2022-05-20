@@ -163,6 +163,12 @@ in {
       DefaultTimeoutStopSec=15s
     '';
 
+    # systemd-networkd: do not block startup needlessly
+    # TODO enable only on notebook
+    systemd.network = mkIf (config.system.stateVersion != "21.11") {
+      wait-online.anyInterface = true;
+    };
+
     # systemd-journald: volatile storage plus forwarding to tty12
     services.journald = {
       console = "tty12";
