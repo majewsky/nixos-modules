@@ -1,5 +1,4 @@
-# This module is enabled on every system where I have physical access.
-# REPLACES hologram-base-accessible
+# This module is used on every system where I have physical access and a screen.
 # REPLACES hologram-base-gui-minimal
 # TODO hologram-base-gui
 # TODO hologram-multimedia-base
@@ -17,84 +16,11 @@ let
 
   cfg = config.my.workstation;
 
-  pwget = pkgs.callPackage ./pkgs/pwget/default.nix {};
-  pwget2 = pkgs.callPackage ./pkgs/pwget2/default.nix {};
-
-  essentialPackages = with pkgs; [
-    # command-line utilities
-    acpi
-    dosfstools # mkfs.vfat
-    gnupg
-    hdparm
-    inotify-tools # inotifywait
-    irssi
-    iw
-    p7zip
-    pwget
-    pwget2
-    qt5.qttools
-    smartmontools
-    sshfs
-    pythonPackages.tabulate
-    unzip
-    whois
-    zip
-
-    # X11 utilities
-    xorg.xev
-    xorg.xlsclients
-    xorg.xmodmap
-    xorg.xprop
-    xorg.xrandr
-
-    # Wayland utilities
-    alacritty
-    bemenu
-    wl-clipboard
-
-    # TODO rest
-
-    # GUI programs
-    firefox
-    gnuplot # TODO mupdf screen-message
-
-    # image viewing/manipulation
-    graphviz
-    imagemagick
-    inkscape
-    optipng
-    sxiv
-    svgcleaner
-
-    # audio
-    paprefs
-    pavucontrol
-
-    # programming
-    gitAndTools.gitFull
-    gitAndTools.qgit
-  ];
-
-  additionalPackages = with pkgs; [
-    # multimedia
-    audacity
-    mumble
-    vlc
-
-    # productivity
-    gnucash
-  ];
-
 in {
 
-  options.my.workstation = let
-    mkBoolOpt = description: mkOption { default = false; example = true; inherit description; type = types.bool; };
-  in {
-    enabled = mkBoolOpt "Whether to enable the configuration parts for systems with physical access.";
-    minimal = mkBoolOpt "Whether to apply a limited application selection.";
-  };
+  # NOTE: `options.my.workstation` is defined in workstation-headless.nix
 
-  config = mkIf cfg.enabled {
+  config = mkIf (cfg.enabled && !cfg.headless) {
 
     fonts.fonts = with pkgs; [
       cantarell-fonts
@@ -122,13 +48,47 @@ in {
       monospace = [ "Iosevka" ];
     };
 
-    services.xserver.enable = true;
-    environment.systemPackages = essentialPackages ++ (optionals (!cfg.minimal) additionalPackages);
+    environment.systemPackages = with pkgs; [
+      # command-line utilities
+      acpi
+      bluez # bluetoothctl
+      iw
 
-    programs.gnupg = {
-      agent.enable = true;
-      agent.pinentryFlavor = "qt";
-    };
+      # X11 utilities (sometimes needed for debugging Xwayland)
+      xorg.xev
+      xorg.xlsclients
+      xorg.xmodmap
+      xorg.xprop
+      xorg.xrandr
+
+      # productivity
+      firefox
+      gnucash
+      gnuplot
+      mupdf
+      screen-message
+
+      # image viewing/manipulation
+      graphviz
+      imagemagick
+      inkscape
+      optipng
+      sxiv
+      svgcleaner
+
+      # audio
+      audacity
+      mpd
+      mumble
+      pavucontrol
+      vlc
+
+      # programming
+      gitAndTools.gitFull
+      gitAndTools.qgit
+
+      # TODO rest
+    ];
 
     # enable audio
     security.rtkit.enable = true;
@@ -140,7 +100,11 @@ in {
       jack.enable = true;
     };
 
+    # enable Bluetooth for headset audio
+    hardware.bluetooth.enable = true;
+
     # select display manager
+    services.xserver.enable = true; # required for SDDM greeter
     services.xserver.displayManager = {
       defaultSession = "sway";
       autoLogin = {
@@ -154,59 +118,37 @@ in {
     };
 
     # use Sway desktop
-    programs.sway = mkIf (!cfg.minimal) {
+    programs.sway = {
       enable = true;
       extraPackages = with pkgs; [
-        dmenu
+        alacritty
+        bemenu
         grim
         i3status-rust
         mako
         qt5.qtwayland
         swayidle
         swaylock
+        wev
+        wl-clipboard
         xwayland
       ];
-      extraSessionCommands = ''
+      extraSessionCommands = let cfgX = config.services.xserver; in ''
         export MOZ_ENABLE_WAYLAND=1
         export SDL_VIDEODRIVER=wayland
         export QT_QPA_PLATFORM=wayland
         export QT_WAYLAND_DISABLE_WINDOWDECORATION=1
+        export XKB_DEFAULT_LAYOUT="${cfgX.layout}"
+        export XKB_DEFAULT_VARIANT="${cfgX.xkbVariant}"
+        export XKB_DEFAULT_OPTIONS="${cfgX.xkbOptions}"
       '';
     };
-
-    # systemd: don't block for 90s when a service does not shut down in a timely fashion
-    systemd.extraConfig = ''
-      DefaultTimeoutStopSec=15s
-    '';
+    programs.xwayland.enable = true;
 
     # systemd-networkd: do not block startup needlessly
     # TODO enable only on notebook
     systemd.network = mkIf (config.system.stateVersion != "21.11") {
       wait-online.anyInterface = true;
-    };
-
-    # systemd-journald: volatile storage plus forwarding to tty12
-    services.journald = {
-      console = "tty12";
-      extraConfig = ''
-        MaxLevelConsole=info
-        Storage=volatile
-        RuntimeMaxUse=100M
-      '';
-    };
-
-    # setup console and keyboard layout
-    services.xserver.layout     = "eu";
-    services.xserver.xkbVariant = "";
-    services.xserver.xkbOptions = "caps:escape";
-    console.useXkbConfig = true;
-    console.font = "Lat2-Terminus16";
-
-    # apply keyboard layout settings to Sway
-    environment.sessionVariables = let cfg = config.services.xserver; in {
-      XKB_DEFAULT_LAYOUT  = cfg.layout;
-      XKB_DEFAULT_VARIANT = cfg.xkbVariant;
-      XKB_DEFAULT_OPTIONS = cfg.xkbOptions;
     };
 
     # TODO port nightwatch from hologram-base-gui?

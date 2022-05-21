@@ -55,6 +55,7 @@ in {
     ./static-websites.nix
     ./vt6-website.nix
     ./workstation.nix
+    ./workstation-headless.nix
     /nix/my/unpacked/generated-basic.nix # supplies config.my.machineID and config.networking.hostName (among others)
   ];
 
