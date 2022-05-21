@@ -76,9 +76,10 @@ in {
       sxiv
       svgcleaner
 
-      # audio
+      # audio/multimedia
       audacity
       mpd
+      mpv
       mumble
       pavucontrol
       vlc
@@ -102,6 +103,39 @@ in {
 
     # enable Bluetooth for headset audio
     hardware.bluetooth.enable = true;
+
+    # configuration for mpv
+    nixpkgs.overlays = [
+      (self: super: {
+        # in the mpv wrapper, we can select scripts to add to the commandline
+        mpv = super.mpv-with-scripts.override {
+          scripts = [ self.mpvScripts.mpris ];
+        };
+        # in the mpv package itself, we can add config to its etc
+        mpv-unwrapped = super.mpv-unwrapped.overrideAttrs (attrs: {
+          postInstall = attrs.postInstall + ''
+            # start with an empty /etc/mpv/mpv.conf
+            echo -n "" > mpv.conf
+            # never display album covers
+            echo 'no-audio-display' >> mpv.conf
+            # always start fullscreen by default
+            echo 'fs' >> mpv.conf
+            # enumerate unfinished videos by examining the watch-later files
+            echo 'write-filename-in-watch-later-config' >> mpv.conf
+            # install into a place where mpv can find it
+            install -D -m 0644 mpv.conf "$out/etc/mpv/mpv.conf"
+          '';
+        });
+      })
+    ];
+    environment.etc."mpv/mpv.conf".text = ''
+      # never display album covers
+      no-audio-display
+      # always start fullscreen by default
+      fs
+      # enumerate unfinished videos by examining the watch-later files
+      write-filename-in-watch-later-config
+    '';
 
     # select display manager
     services.xserver.enable = true; # required for SDDM greeter

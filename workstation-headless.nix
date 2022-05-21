@@ -40,6 +40,7 @@ in {
       pythonPackages.tabulate
       unzip
       whois
+      yt-dlp
       zip
 
       # TODO rest
