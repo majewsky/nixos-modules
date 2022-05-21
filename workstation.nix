@@ -24,6 +24,7 @@ let
     # command-line utilities
     acpi
     dosfstools # mkfs.vfat
+    gnupg
     hdparm
     inotify-tools # inotifywait
     irssi
@@ -123,6 +124,11 @@ in {
 
     services.xserver.enable = true;
     environment.systemPackages = essentialPackages ++ (optionals (!cfg.minimal) additionalPackages);
+
+    programs.gnupg = {
+      agent.enable = true;
+      agent.pinentryFlavor = "qt";
+    };
 
     # enable audio
     security.rtkit.enable = true;
