@@ -71,7 +71,6 @@ in {
     services.xserver.xkbVariant = "";
     services.xserver.xkbOptions = "caps:escape";
     console.useXkbConfig = true;
-    console.font = "Lat2-Terminus16";
 
   };
 }
