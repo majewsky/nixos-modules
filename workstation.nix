@@ -192,9 +192,9 @@ in {
 
     # systemd-networkd: do not block startup needlessly
     # TODO enable only on notebook
-    systemd.network = mkIf (config.system.stateVersion != "21.11") {
+    systemd.network = if (config.system.stateVersion != "21.11") then {
       wait-online.anyInterface = true;
-    };
+    } else {};
 
     # TODO port nightwatch from hologram-base-gui?
 
