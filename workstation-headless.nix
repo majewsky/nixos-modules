@@ -58,7 +58,7 @@ in {
 
     # systemd-journald: volatile storage plus forwarding to tty12
     services.journald = {
-      console = "tty12";
+      console = "/dev/tty12";
       extraConfig = ''
         MaxLevelConsole=info
         Storage=volatile
