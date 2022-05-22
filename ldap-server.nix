@@ -7,7 +7,7 @@ let
 
   cfg = config.my.services.portunus;
 
-  internalListenPort = 18693;
+  internalListenPorts = { portunus = 18693; dex = 18694; };
 
   dstRootCA_X3 = pkgs.writeText "dst-root-ca-x3.pem" ''
     -----BEGIN CERTIFICATE-----
@@ -56,16 +56,22 @@ in {
 
   config = mkIf (cfg.domainName != null) {
 
+    ############################################################################
+    # Portunus
+
     services.portunus = {
       enable = true;
-      listenPort = internalListenPort;
+      listenPort = internalListenPorts.portunus;
     };
 
     services.nginx.virtualHosts.${cfg.domainName} = {
       forceSSL = true;
       enableACME = true;
-      locations."/".proxyPass = "http://[::1]:${toString internalListenPort}";
+      locations."/".proxyPass = "http://[::1]:${toString internalListenPorts.portunus}";
     };
+
+    ############################################################################
+    # LDAPS
 
     # to get an ACME cert, we need to add a dummy vhost to the nginx config
     services.nginx.virtualHosts.${cfg.ldapDomainName} = mkDefault {
@@ -94,6 +100,65 @@ in {
 
     # allow access to LDAPS port
     networking.firewall.interfaces.wg-monitoring.allowedTCPPorts = [ 636 ];
+
+    ############################################################################
+    # OIDC with Dex
+
+    services.dex.enable = true;
+    services.dex.settings = {
+      # HTTP config
+      issuer = "https://${cfg.dexDomainName}/dex";
+      web.http = "127.0.0.1:${toString internalListenPorts.dex}";
+
+      # storage backend
+      storage = {
+        type = "sqlite3";
+        config.file = "/var/lib/dex/dex.db";
+      };
+
+      # connectors
+      enablePasswordDB = false;
+      connectors = [{
+        type = "ldap";
+        id = "ldap";
+        name = "LDAP";
+        config = let clientCfg = config.my.ldap; in {
+          host = "${clientCfg.domainName}:636";
+          bindDN = "uid=${clientCfg.searchUserName},ou=users,${clientCfg.suffix}";
+          bindPW = config.my.ldap.searchUserPassword;
+          userSearch = {
+            baseDN = "ou=users,${clientCfg.suffix}";
+            filter = "(objectclass=person)";
+            username = "uid";
+            idAttr = "uid";
+            emailAttr = "mail";
+            nameAttr = "cn";
+          };
+          groupSearch = {
+            baseDN = "ou=groups,${clientCfg.suffix}";
+            filter = "(objectclass=groupOfNames)";
+            nameAttr = "cn";
+            userMatchers = [{ userAttr = "dn"; groupAttr = "member"; }];
+          };
+        };
+      }];
+
+      # NOTE: staticClients are added via secrets
+    };
+
+    systemd.services.dex.serviceConfig = {
+      # `dex.service` is super locked down out of the box, but we need some
+      # place to write the SQLite database. This creates $STATE_DIRECTORY below
+      # /var/lib/private because DynamicUser=true, but it gets symlinked into
+      # /var/lib/dex inside the unit, so the config as above works.
+      StateDirectory = "dex";
+    };
+
+    services.nginx.virtualHosts.${cfg.dexDomainName} = {
+      forceSSL = true;
+      enableACME = true;
+      locations."/".proxyPass = "http://127.0.0.1:${toString internalListenPorts.dex}";
+    };
 
   };
 
