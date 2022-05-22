@@ -47,6 +47,11 @@ in {
       description = "domain name for the LDAP server";
       type = types.str;
     };
+
+    dexDomainName = mkOption {
+      description = "domain name for the Dex server";
+      type = types.str;
+    };
   };
 
   config = mkIf (cfg.domainName != null) {
