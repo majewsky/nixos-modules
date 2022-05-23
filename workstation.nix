@@ -172,17 +172,11 @@ in {
         wl-clipboard
         xwayland
       ];
-      # NOTE: QT_FONT_DPI defaults to 96 and GDK_DPI_SCALE defaults to 1;
-      # decrease as below puts UIs on a more useful scale on my notebook screen
-      # (may need adjustment later when other machines with different
-      # resolutions and DPIs are relevant)
       extraSessionCommands = let cfgX = config.services.xserver; in ''
         export MOZ_ENABLE_WAYLAND=1
         export SDL_VIDEODRIVER=wayland
         export QT_QPA_PLATFORM=wayland
         export QT_WAYLAND_DISABLE_WINDOWDECORATION=1
-        export GDK_DPI_SCALE=0.66
-        export QT_FONT_DPI=72
         export XKB_DEFAULT_LAYOUT="${cfgX.layout}"
         export XKB_DEFAULT_VARIANT="${cfgX.xkbVariant}"
         export XKB_DEFAULT_OPTIONS="${cfgX.xkbOptions}"
