@@ -9,7 +9,12 @@ let
 
   internalListenPorts = { portunus = 18693; dex = 18694; };
 
-  oidcClientIDs = [ "matrix-synapse" ];
+  oidcClients = [
+    {
+      id = "matrix-synapse";
+      callbackURI = "https://${config.services.matrix-synapse.server_name}/_synapse/client/oidc/callback";
+    }
+  ];
 
   dstRootCA_X3 = pkgs.writeText "dst-root-ca-x3.pem" ''
     -----BEGIN CERTIFICATE-----
@@ -54,10 +59,12 @@ in {
     };
   };
 
-  options.my.services.oidc.clientSecrets = genAttrs oidcClientIDs (clientID: mkOption {
-    description = "client secret for OIDC client ${clientID}";
-    type = types.str;
-  });
+  options.my.services.oidc.clientSecrets = let
+    mkPair = client: (nameValuePair client.id (mkOption {
+      description = "client secret for OIDC client ${client.id}";
+      type = types.str;
+    }));
+  in listToAttrs (map mkPair oidcClients);
 
   config = mkIf (cfg.domainName != null) {
 
@@ -149,7 +156,12 @@ in {
         };
       }];
 
-      # NOTE: staticClients are added via secrets
+      staticClients = forEach oidcClients (client: {
+        id = client.id;
+        redirectURIs = [ client.callbackURI ];
+        name = "OIDC for ${client.id}";
+        secret = config.my.services.oidc.clientSecrets.${client.id};
+      });
     };
 
     systemd.services.dex.serviceConfig = {
