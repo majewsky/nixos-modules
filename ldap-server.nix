@@ -151,7 +151,7 @@ in {
             baseDN = "ou=groups,${clientCfg.suffix}";
             filter = "(objectclass=groupOfNames)";
             nameAttr = "cn";
-            userMatchers = [{ userAttr = "dn"; groupAttr = "member"; }];
+            userMatchers = [{ userAttr = "DN"; groupAttr = "member"; }];
           };
         };
       }];

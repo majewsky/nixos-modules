@@ -51,6 +51,23 @@ in {
 
       allow_guest_access = false;
       enable_registration = false;
+
+      extraConfig = ''
+        oidc_providers:
+        - idp_id: dex
+          idp_name: "SSO via ${config.my.services.portunus.domainName}"
+          issuer: "https://${config.my.services.portunus.domainName}/dex"
+          client_id: "matrix-synapse"
+          client_secret: "${config.my.services.oidc.clientSecrets.matrix-synapse}"
+          scopes: [ openid, groups ]
+          user_mapping_providers:
+            config:
+              localpart_template: "{{ user.name }}"
+              display_name_template: "{{ user.name|capitalize }}"
+          attribute_requirements:
+            - attribute: groups
+              value: matrix-users
+      '';
     };
     # TODO: hardening
 
