@@ -9,6 +9,8 @@ let
 
   internalListenPorts = { portunus = 18693; dex = 18694; };
 
+  oidcClientIDs = [ "matrix-synapse" ];
+
   dstRootCA_X3 = pkgs.writeText "dst-root-ca-x3.pem" ''
     -----BEGIN CERTIFICATE-----
     MIIDSjCCAjKgAwIBAgIQRK+wgNajJ7qJMDmGLvhAazANBgkqhkiG9w0BAQUFADA/
@@ -34,7 +36,10 @@ let
 
 in {
 
-  imports = [ ./portunus.nix ];
+  imports = [
+    ./portunus.nix
+    /nix/my/unpacked/generated-oidc-config.nix
+  ];
 
   options.my.services.portunus = {
     domainName = mkOption {
@@ -48,6 +53,11 @@ in {
       type = types.str;
     };
   };
+
+  options.my.services.oidc.clientSecrets = genAttrs oidcClientIDs (clientID: mkOption {
+    description = "client secret for OIDC client ${clientID}";
+    type = types.str;
+  });
 
   config = mkIf (cfg.domainName != null) {
 
