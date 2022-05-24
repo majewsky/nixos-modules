@@ -146,6 +146,7 @@ in {
             idAttr = "uid";
             emailAttr = "mail";
             nameAttr = "cn";
+            preferredUsernameAttr = "uid";
           };
           groupSearch = {
             baseDN = "ou=groups,${clientCfg.suffix}";

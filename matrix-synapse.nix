@@ -59,11 +59,11 @@ in {
           issuer: "https://${config.my.services.portunus.domainName}/dex"
           client_id: "matrix-synapse"
           client_secret: "${config.my.services.oidc.clientSecrets.matrix-synapse}"
-          scopes: [ openid, groups ]
-          user_mapping_providers:
+          scopes: [ openid, profile, groups ]
+          user_mapping_provider:
             config:
-              localpart_template: "{{ user.name }}"
-              display_name_template: "{{ user.name|capitalize }}"
+              localpart_template: "{{ user.preferred_username }}"
+              display_name_template: "{{ user.name }}"
           attribute_requirements:
             - attribute: groups
               value: matrix-users
