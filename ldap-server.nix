@@ -47,11 +47,6 @@ in {
       description = "domain name for the LDAP server";
       type = types.str;
     };
-
-    dexDomainName = mkOption {
-      description = "domain name for the Dex server";
-      type = types.str;
-    };
   };
 
   config = mkIf (cfg.domainName != null) {
@@ -68,6 +63,7 @@ in {
       forceSSL = true;
       enableACME = true;
       locations."/".proxyPass = "http://[::1]:${toString internalListenPorts.portunus}";
+      locations."/dex/".proxyPass = "http://127.0.0.1:${toString internalListenPorts.dex}/dex/";
     };
 
     ############################################################################
@@ -107,7 +103,7 @@ in {
     services.dex.enable = true;
     services.dex.settings = {
       # HTTP config
-      issuer = "https://${cfg.dexDomainName}/dex";
+      issuer = "https://${cfg.domainName}/dex";
       web.http = "127.0.0.1:${toString internalListenPorts.dex}";
 
       # storage backend
@@ -152,12 +148,6 @@ in {
       # /var/lib/private because DynamicUser=true, but it gets symlinked into
       # /var/lib/dex inside the unit, so the config as above works.
       StateDirectory = "dex";
-    };
-
-    services.nginx.virtualHosts.${cfg.dexDomainName} = {
-      forceSSL = true;
-      enableACME = true;
-      locations."/".proxyPass = "http://127.0.0.1:${toString internalListenPorts.dex}";
     };
 
   };
