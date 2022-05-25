@@ -84,6 +84,7 @@ in {
       mpv
       mumble
       ncmpcpp
+      pamixer
       pavucontrol
       vlc
 
