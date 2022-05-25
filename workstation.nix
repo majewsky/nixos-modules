@@ -79,9 +79,11 @@ in {
 
       # audio/multimedia
       audacity
+      mpc_cli
       mpd
       mpv
       mumble
+      ncmpcpp
       pavucontrol
       vlc
 

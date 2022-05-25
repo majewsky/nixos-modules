@@ -118,6 +118,7 @@ in {
       nmap # ncat(1)
       openssl # for the openssl(1) utility tool
       pinfo
+      psmisc # killall(1)
       pwgen
       pv
       ripgrep
