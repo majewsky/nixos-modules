@@ -26,6 +26,7 @@ in {
       cantarell-fonts
       dejavu_fonts
       freefont_ttf
+      ipafont
       iosevka
       liberation_ttf
       libertine
@@ -183,6 +184,12 @@ in {
       '';
     };
     programs.xwayland.enable = true;
+
+    # enable IME for Japanese text
+    i18n.inputMethod = {
+      enabled = "fcitx";
+      fcitx.engines = with pkgs.fcitx-engines; [ mozc ];
+    };
 
     # systemd-networkd: do not block startup needlessly
     # TODO enable only on notebook
