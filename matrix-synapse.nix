@@ -67,6 +67,7 @@ in {
           attribute_requirements:
             - attribute: groups
               value: matrix-users
+          allow_existing_users: true
       '';
     };
     # TODO: hardening
