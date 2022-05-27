@@ -2,6 +2,8 @@
 # therefore want a broader tool selection), regardless of whether I have a
 # screen or not.
 # REPLACES hologram-base-accessible
+# REPLACES hologram-multimedia-base
+# REPLACES hologram-dev-tools-minimal
 
 { config, pkgs, lib, ... }:
 
@@ -40,10 +42,23 @@ in {
       pythonPackages.tabulate
       unzip
       whois
-      yt-dlp
       zip
 
-      # TODO rest
+      # multimedia
+      mp3splt # contains oggsplt, too
+      opusTools
+      # TODO ripit
+      vorbis-tools
+      vorbisgain
+      yt-dlp
+
+      # development tools
+      binutils
+      cloc
+      gcc
+      go
+      gotools
+      perlPackages.TermReadKey # required for "interactive.singlekey" config of Git
     ];
 
     programs.gnupg = {

@@ -1,9 +1,7 @@
 # This module is used on every system where I have physical access and a screen.
 # REPLACES hologram-base-gui-minimal
-# TODO hologram-base-gui
-# TODO hologram-multimedia-base
-# TODO hologram-devtools
-# TODO hologram-devtools-minimal
+# REPLACES hologram-base-gui
+# TODO hologram-dev-tools
 # TODO hologram-dtp
 # TODO hologram-games
 # TODO hologram-sway-desktop
@@ -200,6 +198,12 @@ in {
     systemd.network = if (config.system.stateVersion != "21.11") then {
       wait-online.anyInterface = true;
     } else {};
+
+    # systemd-logind: no magic suspend on lid close
+    services.logind = {
+      lidSwitch = "ignore";
+      extraConfig = "HandlePowerKey=lock";
+    };
 
     # TODO port nightwatch from hologram-base-gui?
 
