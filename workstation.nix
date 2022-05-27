@@ -1,8 +1,8 @@
 # This module is used on every system where I have physical access and a screen.
 # REPLACES hologram-base-gui-minimal
 # REPLACES hologram-base-gui
-# TODO hologram-dev-tools
-# TODO hologram-dtp
+# REPLACES hologram-dev-tools
+# REPLACES hologram-dtp
 # TODO hologram-games
 # TODO hologram-sway-desktop
 
@@ -66,6 +66,7 @@ in {
       gnuplot
       mupdf
       screen-message
+      texlive.combined.scheme-full
 
       # image viewing/manipulation
       graphviz
@@ -87,14 +88,21 @@ in {
       vlc
 
       # programming
+      cargo
+      cargo-watch
       gitAndTools.gitFull
       gitAndTools.qgit
+      rustc
 
       # theming
       breeze-icons
       breeze-qt5 # includes breeze cursors
       gnome3.adwaita-icon-theme
       hicolor-icon-theme
+
+      # games
+      jre8 # for Minecraft (modpacks for older versions don't work with newer JREs)
+      polymc
 
       # TODO rest
     ];
@@ -204,6 +212,15 @@ in {
       lidSwitch = "ignore";
       extraConfig = "HandlePowerKey=lock";
     };
+
+    # development tools: Docker
+    virtualisation.docker.enable = true;
+    users.users.stefan.extraGroups = ["docker"];
+
+    # gaming
+    nixpkgs.config.allowUnfree = true;
+    programs.steam.enable = true;
+    hardware.steam-hardware.enable = true; # for Steam Controller
 
     # TODO port nightwatch from hologram-base-gui?
 

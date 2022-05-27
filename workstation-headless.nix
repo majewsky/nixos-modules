@@ -59,6 +59,7 @@ in {
       go
       gotools
       perlPackages.TermReadKey # required for "interactive.singlekey" config of Git
+      sassc
     ];
 
     programs.gnupg = {
