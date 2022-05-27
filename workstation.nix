@@ -94,6 +94,7 @@ in {
 
       # theming
       breeze-icons
+      breeze-qt5 # includes breeze cursors
       gnome3.adwaita-icon-theme
       hicolor-icon-theme
 
