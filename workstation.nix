@@ -1,10 +1,11 @@
 # This module is used on every system where I have physical access and a screen.
 # REPLACES hologram-base-gui-minimal
 # REPLACES hologram-base-gui
+# REPLACES hologram-bluetooth-audio
 # REPLACES hologram-dev-tools
 # REPLACES hologram-dtp
-# TODO hologram-games
-# TODO hologram-sway-desktop
+# REPLACES hologram-games
+# REPLACES hologram-sway-desktop
 
 { config, pkgs, lib, ... }:
 
@@ -83,6 +84,8 @@ in {
       mpv
       mumble
       ncmpcpp
+      obs-studio
+      obs-studio-plugins.wlrobs
       pamixer
       pavucontrol
       vlc
@@ -99,6 +102,13 @@ in {
       breeze-qt5 # includes breeze cursors
       gnome3.adwaita-icon-theme
       hicolor-icon-theme
+
+      # selected KDE applications
+      filelight
+      kcharselect
+      kcolorchooser
+      kid3
+      kolourpaint
 
       # games
       jre8 # for Minecraft (modpacks for older versions don't work with newer JREs)
@@ -177,11 +187,14 @@ in {
         i3status-rust
         mako
         qt5.qtwayland
+        slurp
         swayidle
         swaylock
+        xdg-desktop-portal
+        xdg-desktop-portal-wlr
         wev
         wl-clipboard
-        xwayland
+        wtype
       ];
       extraSessionCommands = let cfgX = config.services.xserver; in ''
         export MOZ_ENABLE_WAYLAND=1
@@ -194,6 +207,26 @@ in {
       '';
     };
     programs.xwayland.enable = true;
+
+    # additional daemons to run in a Sway session
+    systemd.user.targets.sway-session = {
+      description = "Services that are only run by Sway";
+      wants = [
+        "gammastep.service"
+        "mako.service"
+        "xdg-desktop-portal-wlr.service"
+      ];
+    };
+    systemd.user.services.gammastep = {
+      description = "Redshift for Wayland";
+      script = "${pkgs.gammastep}/bin/gammastep -b 1:0.5 -t 6500:3500 -l 51:13 -m wayland";
+      serviceConfig.Restart = "always";
+    };
+    systemd.user.services.mako = {
+      description = "Notification daemon";
+      script = "${pkgs.mako}/bin/mako --font 'Iosevka 16' --width 400";
+      serviceConfig.Restart = "always";
+    };
 
     # enable IME for Japanese text
     i18n.inputMethod = {
