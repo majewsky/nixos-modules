@@ -219,7 +219,7 @@ in {
     };
     systemd.user.services.gammastep = {
       description = "Redshift for Wayland";
-      script = "${pkgs.gammastep}/bin/gammastep -b 1:0.5 -t 6500:3500 -l 51:13 -m wayland";
+      script = "${pkgs.gammastep}/bin/gammastep -b 1:0.5 -t 6500:2500 -l 51:13 -m wayland -r";
       serviceConfig.Restart = "always";
     };
     systemd.user.services.mako = {
