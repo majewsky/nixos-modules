@@ -93,6 +93,7 @@ in {
       # programming
       cargo
       cargo-watch
+      clippy
       gitAndTools.gitFull
       gitAndTools.qgit
       rustc
