@@ -97,6 +97,7 @@ in {
       gitAndTools.gitFull
       gitAndTools.qgit
       rustc
+      rustfmt
 
       # theming
       breeze-icons
