@@ -23,6 +23,7 @@ in {
   in {
     enabled = mkBoolOpt "Whether to enable the configuration parts for systems with physical access.";
     headless = mkBoolOpt "Whether to exclude configuration parts that relate to GUI access.";
+    wireless = mkBoolOpt "Whether to enable configuration parts for systems with WiFi interface.";
   };
 
   config = mkIf cfg.enabled {
@@ -61,6 +62,8 @@ in {
       perlPackages.TermReadKey # required for "interactive.singlekey" config of Git
       sassc
     ];
+
+    networking.useNetworkd = true;
 
     programs.gnupg = {
       agent.enable = true;
