@@ -94,7 +94,7 @@ in {
     ############################################################################
     # basic setup for interactive use
 
-    system.autoUpgrade.enable = mkDefault true;
+    system.autoUpgrade.enable = mkDefault (!config.my.workstation.enabled); # auto-upgrade only on servers
     nix = {
       gc = {
         automatic = mkDefault true;
