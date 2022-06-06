@@ -58,6 +58,7 @@ in {
       cloc
       gcc
       go
+      golangci-lint
       gotools
       perlPackages.TermReadKey # required for "interactive.singlekey" config of Git
       sassc

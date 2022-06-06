@@ -96,6 +96,7 @@ in {
       clippy
       gitAndTools.gitFull
       gitAndTools.qgit
+      postgresql # for test runs using a Postgres instance in tmpfs (see below, Ctrl-F "pathsToLink")
       rustc
       rustfmt
 
@@ -118,6 +119,9 @@ in {
 
       # TODO rest
     ];
+
+    # make postgres binaries work outside of postgresql.service (for test runs using Postgres)
+    environment.pathsToLink = [ "/share/postgresql" ];
 
     # enable audio
     security.rtkit.enable = true;
