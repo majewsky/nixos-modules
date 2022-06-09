@@ -88,6 +88,7 @@ in {
       obs-studio-plugins.wlrobs
       pamixer
       pavucontrol
+      playerctl
       vlc
 
       # programming
