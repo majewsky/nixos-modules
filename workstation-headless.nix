@@ -48,6 +48,7 @@ in {
       # multimedia
       mp3splt # contains oggsplt, too
       opusTools
+      qrencode
       # TODO ripit
       vorbis-tools
       vorbisgain
