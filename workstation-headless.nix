@@ -57,11 +57,15 @@ in {
       binutils
       cloc
       gcc
-      go
+      go_1_18 # 22.05 defaults to 1.17
       golangci-lint
       gotools
       perlPackages.TermReadKey # required for "interactive.singlekey" config of Git
       sassc
+
+      # documentation
+      man-pages
+      man-pages-posix
     ];
 
     networking.useNetworkd = true;
