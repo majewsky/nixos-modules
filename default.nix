@@ -116,6 +116,7 @@ in {
       gptfdisk
       jq
       lsof
+      moreutils # vidir(1), ts(1), sponge(1), etc.
       nmap # ncat(1)
       openssl # for the openssl(1) utility tool
       pinfo
