@@ -65,6 +65,7 @@ in {
       firefox
       gnucash
       gnuplot
+      libreoffice-still
       mupdf
       screen-message
       texlive.combined.scheme-full
