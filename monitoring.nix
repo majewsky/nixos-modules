@@ -38,7 +38,7 @@ let
     if ! check_systemctl; then
         SUCCESS=0
     fi
-    for CONTAINER_FILENAME in /etc/containers/*.conf; do
+    for CONTAINER_FILENAME in /etc/nixos-containers/*.conf; do
         CONTAINER_NAME="$(basename "$CONTAINER_FILENAME" .conf)"
         if [ "$CONTAINER_NAME" != "*" ]; then
             if ! check_systemctl -M "$CONTAINER_NAME"; then
