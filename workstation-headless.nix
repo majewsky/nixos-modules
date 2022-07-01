@@ -46,6 +46,7 @@ in {
       zip
 
       # multimedia
+      ffmpeg
       mp3splt # contains oggsplt, too
       opusTools
       qrencode
