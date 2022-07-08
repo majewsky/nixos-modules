@@ -27,9 +27,9 @@ in {
     };
 
     services.postgresql = {
-      package = pkgs.postgresql_13;
+      package = pkgs.postgresql_14;
       enable = true;
-      dataDir = "/var/lib/postgresql-13";
+      dataDir = "/var/lib/postgresql-14";
       ensureDatabases = [ "nextcloud" ];
       ensureUsers = [{
         name = "nextcloud";
