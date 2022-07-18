@@ -101,7 +101,7 @@ in {
     '';
 
     systemd.services.portunus = let
-      acmeDirectory = "/var/lib/acme/${cfg.ldapDomainName}";
+      acmeDirectory = config.security.acme.certs.${cfg.ldapDomainName}.directory;
     in {
       environment = {
         PORTUNUS_SLAPD_TLS_CA_CERTIFICATE = "${acmeDirectory}/complete-chain.pem";
