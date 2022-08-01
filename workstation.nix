@@ -55,6 +55,7 @@ in {
       acpi
       bluez # bluetoothctl
       iw
+      lm_sensors # sensors
 
       # X11 utilities (sometimes needed for debugging Xwayland)
       xorg.xev
