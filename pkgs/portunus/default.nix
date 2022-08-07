@@ -2,11 +2,11 @@
 
 stdenv.mkDerivation rec {
   name = "portunus-${version}";
-  version = "1.0.0";
+  version = "1.1.0-beta.2";
 
   src = fetchurl {
     url = "https://github.com/majewsky/portunus/archive/v${version}.tar.gz";
-    sha256 = "1sl02n1ix9dp785za3fknll8jghic13jf7kmf12z9mr4yn7x6zha";
+    sha256 = "sha256-VGVGI/5dpfSs6Ai+t0YT6z3w/kq3BTKVSX8Q3Srb6Vs=";
   };
 
   buildInputs = [ go ];
