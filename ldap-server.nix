@@ -12,7 +12,7 @@ let
   oidcClients = [
     {
       id = "matrix-synapse";
-      callbackURI = "https://${config.services.matrix-synapse.server_name}/_synapse/client/oidc/callback";
+      callbackURI = "https://${config.services.matrix-synapse.settings.server_name}/_synapse/client/oidc/callback";
     }
   ];
 

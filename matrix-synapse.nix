@@ -19,7 +19,7 @@ in {
 
     networking.firewall.allowedTCPPorts = [ 8448 ];
 
-    services.nginx.virtualHosts.${cfg.server_name} = {
+    services.nginx.virtualHosts.${cfg.settings.server_name} = {
       forceSSL = true;
       enableACME = true;
       listen = [
