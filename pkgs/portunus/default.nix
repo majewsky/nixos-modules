@@ -1,12 +1,14 @@
-{ stdenv, lib, fetchurl, go }:
+{ stdenv, lib, fetchFromGitHub, go }:
 
 stdenv.mkDerivation rec {
   name = "portunus-${version}";
-  version = "1.1.0-beta.2";
+  version = "1.1.0";
 
-  src = fetchurl {
-    url = "https://github.com/majewsky/portunus/archive/v${version}.tar.gz";
-    sha256 = "sha256-VGVGI/5dpfSs6Ai+t0YT6z3w/kq3BTKVSX8Q3Srb6Vs=";
+  src = fetchFromGitHub {
+    owner = "majewsky";
+    repo = "portunus";
+    rev = "v${version}";
+    sha256 = "sha256-+sq5Wja0tVkPZ0Z++K2A6my9LfLJ4twxtoEAS6LHqzE=";
   };
 
   buildInputs = [ go ];
