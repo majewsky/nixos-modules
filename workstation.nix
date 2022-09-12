@@ -119,6 +119,7 @@ in {
       kolourpaint
 
       # games
+      discord
       jre8 # for Minecraft (modpacks for older versions don't work with newer JREs)
       polymc
 
