@@ -243,8 +243,8 @@ in {
 
     # health check is triggered periodically by `startAt` above, but should
     # also report on reboot
-    systemd.timers.auto-health-check = mkIf(!config.my.workstation.enabled) {
-      timerConfig.OnStartupSec = "1min";
+    systemd.timers.auto-health-check = mkIf (!config.my.workstation.enabled) {
+      timerConfig.OnStartupSec = "20s";
     };
 
   };
