@@ -202,8 +202,6 @@ in {
         slurp
         swayidle
         swaylock
-        xdg-desktop-portal
-        xdg-desktop-portal-wlr
         wev
         wl-clipboard
         wtype
@@ -220,13 +218,17 @@ in {
     };
     programs.xwayland.enable = true;
 
+    xdg.portal = {
+      enable = true;
+      wlr.enable = true;
+    };
+
     # additional daemons to run in a Sway session
     systemd.user.targets.sway-session = {
       description = "Services that are only run by Sway";
       wants = [
         "gammastep.service"
         "mako.service"
-        "xdg-desktop-portal-wlr.service"
       ];
     };
     systemd.user.services.gammastep = {
@@ -267,7 +269,8 @@ in {
     programs.steam.enable = true;
     hardware.steam-hardware.enable = true; # for Steam Controller
 
-    # TODO port nightwatch from hologram-base-gui?
+    # testing
+    services.flatpak.enable = true;
 
   };
 
