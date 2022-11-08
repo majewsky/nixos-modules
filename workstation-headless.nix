@@ -59,9 +59,9 @@ in {
       binutils
       cloc
       gcc
-      go_1_18 # 22.05 defaults to 1.17
-      golangci-lint
-      gotools
+      channels.unstable.go # 22.05 defaults to 1.17, but I want 1.19
+      channels.unstable.golangci-lint
+      channels.unstable.gotools
       perlPackages.TermReadKey # required for "interactive.singlekey" config of Git
       sassc
 
