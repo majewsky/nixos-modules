@@ -34,6 +34,7 @@ in {
       hdparm
       inotify-tools # inotifywait
       irssi
+      openldap # ldapsearch
       p7zip
       pwget
       pwget2
