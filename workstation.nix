@@ -250,9 +250,7 @@ in {
 
     # systemd-networkd: do not block startup needlessly
     # TODO enable only on notebook
-    systemd.network = if (config.system.stateVersion != "21.11") then {
-      wait-online.anyInterface = true;
-    } else {};
+    systemd.network.wait-online.anyInterface = true;
 
     # systemd-logind: no magic suspend on lid close
     services.logind = {
