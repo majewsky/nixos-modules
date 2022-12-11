@@ -45,7 +45,7 @@ in {
           ${concatMapStrings (path: "--exclude ${path} ") cfg.excludedPaths} \
           --compression auto,lzma \
           --rsh "ssh -i /nix/my/unpacked/borgbackup-ssh-key" \
-          --remote-ratelimit 10240 \
+          --upload-ratelimit 10240 \
           "borgrecv@${cfg.targetHost}:/var/lib/borgrecv/repo/${config.networking.hostName}::{utcnow:%Y-%m-%dT%H:%M:%SZ}" /
       '';
       environment = let cfgMatrix = config.my.services.monitoring.matrix; in {
