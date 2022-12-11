@@ -149,7 +149,7 @@ in {
     nixpkgs.overlays = [
       (self: super: {
         # in the mpv wrapper, we can select scripts to add to the commandline
-        mpv = super.mpv-with-scripts.override {
+        mpv = super.mpv.override {
           scripts = [ self.mpvScripts.mpris ];
         };
         # in the mpv package itself, we can add config to its etc

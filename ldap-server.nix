@@ -71,7 +71,7 @@ in {
     ############################################################################
     # Portunus
 
-    services.portunus = {
+    services.my-portunus = {
       enable = true;
       listenPort = internalListenPorts.portunus;
     };

@@ -30,12 +30,12 @@ with lib;
 
 let
 
-  cfg = config.services.portunus;
+  cfg = config.services.my-portunus;
   portunusPackage = pkgs.callPackage ./pkgs/portunus/default.nix {};
 
 in {
 
-  options.services.portunus = {
+  options.services.my-portunus = {
     enable = mkEnableOption "Portunus, a self-contained user/group management and authentication service";
 
     stateDirectory = mkOption {
