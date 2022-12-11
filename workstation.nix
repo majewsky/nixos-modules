@@ -50,6 +50,9 @@ in {
       monospace = [ "Iosevka" ];
     };
 
+    # My ISP is still actively destroying DNSSEC, so "allow-downgrade" is not enough. m(
+    services.resolved.dnssec = "false";
+
     environment.systemPackages = with pkgs; [
       # command-line utilities
       acpi
