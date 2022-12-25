@@ -33,7 +33,7 @@ with lib; {
       fsType = "ext4";
     };
     swapDevices = [];
-    nix.maxJobs = lib.mkDefault 1;
+    nix.settings.max-jobs = lib.mkDefault 1;
 
     # network configuration: IPv4 comes via DHCP, but IPv6 must be given in via
     # the config (could theoretically be retrieved from the metadata service,

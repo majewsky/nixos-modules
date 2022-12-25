@@ -13,47 +13,6 @@ let
   # copy the entire ./grafana-dashboards directory into the /nix/store.
   dashboardsDir = builtins.path { path = ./grafana-dashboards; name = "grafana-dashboards"; };
 
-  dashboardsConfigDir = pkgs.writeTextFile {
-    name = "grafana-provisioning-dashboards";
-    destination = "/dashboards.yaml";
-    text = ''
-      apiVersion: 1
-
-      providers:
-      - name: default
-        orgId: 1
-        folder: ""
-        type: file
-        disableDeletion: false
-        updateIntervalSeconds: 60 # how often Grafana will scan for changed dashboards
-        options:
-          path: ${dashboardsDir}
-    '';
-  };
-
-  datasourcesConfigDir = pkgs.writeTextFile {
-    name = "grafana-provisioning-datasources";
-    destination = "/prometheus.yaml";
-    text = ''
-      apiVersion: 1
-      deleteDatasources:
-        - name: Prometheus
-          orgId: 1
-      datasources:
-        - name: Prometheus
-          orgId: 1
-          type: prometheus
-          access: proxy
-          url: http://${cfg.prometheusHost}
-          editable: false
-    '';
-  };
-
-  provisioningDir = pkgs.linkFarm "grafana-provisioning" [
-    { path = toString datasourcesConfigDir; name = "datasources"; }
-    { path = toString dashboardsConfigDir; name = "dashboards"; }
-  ];
-
   ldapConfigFile = pkgs.writeText "grafana-ldap.toml" ''
     [[servers]]
     host = "${config.my.ldap.domainName}"
@@ -95,43 +54,70 @@ in {
       description = "hostname (or IP address) and port of the Prometheus instance used by Grafana as a datasource";
       type = types.str;
     };
-    adminPassword = mkOption {
-      description = "password for admin user of Grafana";
-      type = types.str;
-    };
   };
 
   config = mkIf (cfg.domainName != null) {
 
     services.grafana = {
       enable  = true;
-      port    = internalListenPort;
-      domain  = cfg.domainName;
-      rootUrl = "https://${cfg.domainName}/";
 
-      analytics.reporting.enable = false;
-      auth.anonymous.enable = false;
+      settings = {
+        analytics.reporting_enabled = false;
+        "auth.anonymous".enabled = false;
+        "auth.ldap" = {
+          enabled = true;
+          config_file = "${ldapConfigFile}";
+          allow_sign_up = true; # allow the LDAP driver to create new users in the Grafana DB
+        };
+        log = {
+          mode = "console";
+          level = "info";
+        };
+        security = {
+          cookie_secure = true;
+          data_source_proxy_whitelist = cfg.prometheusHost;
+          disable_gravatar = true;
+          disable_initial_admin_creation = true; # rely only on LDAP for admin users
+          security_key = "$__file{/var/lib/grafana/secret-key}"; # generated on first start, see `preStart` below
+          strict_transport_security = true;
+        };
+        server = {
+          domain    = cfg.domainName;
+          http_port = internalListenPort;
+          root_url  = "https://${cfg.domainName}/";
+        };
+        snapshots.external_enabled = false;
+        unified_alerting.enabled = false;
+      };
 
-      extraOptions = {
-        LOG_MODE = "console";
-        LOG_LEVEL = "info";
+      provision.datasources.settings = {
+        apiVersion = 1;
+        deleteDatasources = [{
+          name = "Prometheus";
+          orgId = 1;
+        }];
+        datasources = [{
+          name = "Prometheus";
+          orgId = 1;
+          type = "prometheus";
+          access = "proxy";
+          url = "http://${cfg.prometheusHost}";
+          editable = false;
+        }];
+      };
 
-        PATHS_PROVISIONING = provisioningDir;
-
-        SECURITY_ADMIN_USER = "admin";
-        SECURITY_ADMIN_PASSWORD = cfg.adminPassword;
-        SECURITY_DISABLE_GRAVATAR = "true";
-        SECURITY_DATA_SOURCE_PROXY_WHITELIST = cfg.prometheusHost;
-
-        SESSION_PROVIDER = "memory";
-        SESSION_COOKIE_SECURE = "true";
-
-        SNAPSHOTS_EXTERNAL_ENABLED = "false";
-        ALERTING_ENABLED = "false";
-
-        AUTH_LDAP_ENABLED = "true";
-        AUTH_LDAP_CONFIG_FILE = ldapConfigFile;
-        AUTH_LDAP_ALLOW_SIGN_UP = "true"; # allow the LDAP driver to create new users in the Grafana DB
+      provision.dashboards.settings = {
+        apiVersion = 1;
+        providers = [{
+          name = "default";
+          orgID = 1;
+          disableDeletion = true;
+          # This update is practically disabled because it's not useful here.
+          # The dashboards are in the /nix/store, so changing them requires a
+          # nixos-rebuild which restarts Grafana anyway.
+          updateIntervalSeconds = 86400;
+          options.path = dashboardsDir;
+        }];
       };
     };
 
@@ -153,6 +139,13 @@ in {
 
         # hamper Google surveillance
         add_header Permissions-Policy "interest-cohort=()" always;
+      '';
+    };
+
+    systemd.services.grafana = {
+      path = [ pkgs.pwgen ];
+      preStart = ''
+        test -f /var/lib/grafana/secret-key || pwgen 30 1 > /var/lib/grafana/secret-key
       '';
     };
 
