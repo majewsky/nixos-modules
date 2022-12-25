@@ -62,6 +62,7 @@ in {
       enable  = true;
 
       settings = {
+        alerting.enabled = false;
         analytics.reporting_enabled = false;
         "auth.anonymous".enabled = false;
         "auth.ldap" = {
