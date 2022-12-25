@@ -119,7 +119,7 @@ in {
       group = "shove";
       isSystemUser = true;
       description = "system user for shove (GitHub webhook handler)";
-      home = "/var/empty";
+      home = homeDir; # need to be able to write .ssh/known_hosts
     };
 
     systemd.services."shove-early" = {
