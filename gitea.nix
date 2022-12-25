@@ -34,17 +34,17 @@ in {
   config = mkIf cfg.enable {
 
     services.gitea = {
-      disableRegistration = true;
-
       rootUrl = "https://${cfg.domain}/";
       httpAddress = "127.0.0.1";
       httpPort = internalListenPort;
 
-      # NOTE: default log mode is "console" since Gitea 1.9
-      log.level = "Info";
-
       # security/privacy hardening
       settings = {
+        # NOTE: default log mode is "console" since Gitea 1.9
+        log.LEVEL = "Info";
+
+        service.DISABLE_REGISTRATION = true;
+
         "repository.upload" = {
           ENABLED = false;
         };
