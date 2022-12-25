@@ -31,7 +31,7 @@ with lib;
 let
 
   cfg = config.services.my-portunus;
-  portunusPackage = pkgs.callPackage ./pkgs/portunus/default.nix {};
+  portunusPackage = pkgs.portunus;
 
 in {
 
