@@ -23,6 +23,10 @@ in {
     services.nginx.virtualHosts.${cfg.domainName} = {
       forceSSL = true;
       enableACME = true;
+
+      extraConfig = ''
+        add_header Strict-Transport-Security "max-age=15768000; includeSubDomains" always; # six months
+      '';
       # NOTE: the rest is configured by services.nextcloud.enable
     };
 
@@ -46,7 +50,7 @@ in {
     services.nextcloud = {
       enable = true;
       hostName = cfg.domainName;
-      package = pkgs.nextcloud24;
+      package = pkgs.nextcloud25;
 
       # NOTE: services.nextcloud.config is only used for the initial setup, afterwards Nextcloud's stateful config takes precedence
       config = {
