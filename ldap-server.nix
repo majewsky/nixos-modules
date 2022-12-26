@@ -42,7 +42,6 @@ let
 in {
 
   imports = [
-    ./portunus.nix
     /nix/my/unpacked/generated-oidc-config.nix
   ];
 
@@ -50,11 +49,19 @@ in {
     domainName = mkOption {
       default = null;
       description = "domain name for Portunus (must be given to enable the service)";
+      example = "sso.example.org";
       type = types.nullOr types.str;
     };
 
     ldapDomainName = mkOption {
       description = "domain name for the LDAP server";
+      example = "example.org";
+      type = types.str;
+    };
+
+    ldapSuffix = mkOption {
+      description = "DN of the topmost entry in the LDAP directory";
+      example = "dc=example,dc=org";
       type = types.str;
     };
   };
@@ -71,10 +78,18 @@ in {
     ############################################################################
     # Portunus
 
-    services.my-portunus = {
+    services.portunus = {
       enable = true;
-      listenPort = internalListenPorts.portunus;
+      port = internalListenPorts.portunus;
+      ldap.suffix = cfg.ldapSuffix;
     };
+
+    systemd.services.portunus.after = [
+      # in my setup, Portunus will fail to start up unless the WireGuard network
+      # is already up, because ldap-client.nix overrides the LDAP server's domain
+      # name to refer to an address on the WireGuard network
+      "wireguard-wg-monitoring.service"
+    ];
 
     services.nginx.virtualHosts.${cfg.domainName} = {
       forceSSL = true;
@@ -100,15 +115,13 @@ in {
       systemctl restart portunus.service
     '';
 
-    systemd.services.portunus = let
+    systemd.services.portunus.environment = let
       acmeDirectory = "/var/lib/acme/${cfg.ldapDomainName}";
     in {
-      environment = {
-        PORTUNUS_SLAPD_TLS_CA_CERTIFICATE = "${acmeDirectory}/complete-chain.pem";
-        PORTUNUS_SLAPD_TLS_CERTIFICATE    = "${acmeDirectory}/cert.pem";
-        PORTUNUS_SLAPD_TLS_DOMAIN_NAME    = cfg.ldapDomainName;
-        PORTUNUS_SLAPD_TLS_PRIVATE_KEY    = "${acmeDirectory}/key.pem";
-      };
+      PORTUNUS_SLAPD_TLS_CA_CERTIFICATE = "${acmeDirectory}/complete-chain.pem";
+      PORTUNUS_SLAPD_TLS_CERTIFICATE    = "${acmeDirectory}/cert.pem";
+      PORTUNUS_SLAPD_TLS_DOMAIN_NAME    = cfg.ldapDomainName;
+      PORTUNUS_SLAPD_TLS_PRIVATE_KEY    = "${acmeDirectory}/key.pem";
     };
 
     # allow access to LDAPS port
