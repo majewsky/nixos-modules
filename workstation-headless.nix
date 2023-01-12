@@ -78,6 +78,8 @@ in {
       agent.pinentryFlavor = if cfg.headless then "curses" else "qt";
     };
 
+    programs.fuse.userAllowOther = true;
+
     # systemd: don't block for 90s when a service does not shut down in a timely fashion
     systemd.extraConfig = ''
       DefaultTimeoutStopSec=15s
