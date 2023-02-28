@@ -99,14 +99,16 @@ in {
       vlc
 
       # programming
-      cargo
-      cargo-watch
-      clippy
       gitAndTools.gitFull
       gitAndTools.qgit
       postgresql # for test runs using a Postgres instance in tmpfs (see below, Ctrl-F "pathsToLink")
-      rustc
-      rustfmt
+
+      # Rust programming esp. warrants having a very recent compiler
+      channels.unstable.cargo
+      channels.unstable.cargo-watch
+      channels.unstable.clippy
+      channels.unstable.rustc
+      channels.unstable.rustfmt
 
       # theming
       breeze-icons
