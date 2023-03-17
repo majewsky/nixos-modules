@@ -54,7 +54,7 @@ in {
           DSA = -1;
           ECDSA = -1;
           ED25519 = 256;
-          RSA = 4096;
+          RSA = 4095;
         };
 
         "service" = {
