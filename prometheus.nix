@@ -73,6 +73,8 @@ let
             - node_memory_SwapTotal_bytes
             - node_network_receive_bytes_total
             - node_network_transmit_bytes_total
+            # other things that interest me
+            - node_hwmon_temp_celsius
   '';
 
   instances = {
