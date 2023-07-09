@@ -20,7 +20,6 @@ with lib; {
     # use Grub bootloader
     boot.loader.grub = {
       enable = true;
-      version = 2;
       device = "/dev/sda";
     };
 

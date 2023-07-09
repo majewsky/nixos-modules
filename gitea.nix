@@ -6,7 +6,7 @@ with lib;
 
 let
 
-  cfg = config.services.gitea;
+  cfg = config.my.services.gitea;
   internalListenPort = 17610;
 
   ldapOptions = let
@@ -31,19 +31,35 @@ let
 
 in {
 
-  config = mkIf cfg.enable {
+  options.my.services.gitea = {
+    domainName = mkOption {
+      default = null;
+      description = "domain name for Gitea (must be given to enable the service)";
+      type = types.nullOr types.str;
+    };
+    appName = mkOption {
+      default = config.services.gitea.domainName;
+      description = "site name";
+      type = types.str;
+    };
+  };
+
+  config = mkIf (cfg.domainName != null) {
 
     services.gitea = {
-      rootUrl = "https://${cfg.domain}/";
-      httpAddress = "127.0.0.1";
-      httpPort = internalListenPort;
+      enable = true;
+      appName = cfg.appName;
 
-      # security/privacy hardening
       settings = {
+        server = {
+          DOMAIN = cfg.domainName;
+          ROOT_URL = "https://${cfg.domainName}/";
+          HTTP_ADDR = "127.0.0.1";
+          HTTP_PORT = internalListenPort;
+        };
+
         # NOTE: default log mode is "console" since Gitea 1.9
         log.LEVEL = "Info";
-
-        service.DISABLE_REGISTRATION = true;
 
         "repository.upload" = {
           ENABLED = false;
@@ -58,6 +74,7 @@ in {
         };
 
         "service" = {
+          DISABLE_REGISTRATION = true;
           REQUIRE_SIGNIN_VIEW = true;
         };
 
@@ -100,7 +117,7 @@ in {
       fi
     '';
 
-    services.nginx.virtualHosts.${cfg.domain} = {
+    services.nginx.virtualHosts.${cfg.domainName} = {
       forceSSL = true;
       enableACME = true;
 

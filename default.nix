@@ -146,7 +146,7 @@ in {
     time.timeZone = "Europe/Berlin";
     services.timesyncd.servers = [ "ptbtime1.ptb.de" ];
 
-    boot.tmpOnTmpfs = true;
+    boot.tmp.useTmpfs = true;
     services.openssh.enable = true;
 
     users.users.stefan = {
