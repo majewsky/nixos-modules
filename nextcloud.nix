@@ -50,7 +50,7 @@ in {
     services.nextcloud = {
       enable = true;
       hostName = cfg.domainName;
-      package = pkgs.nextcloud25;
+      package = pkgs.nextcloud26;
 
       # NOTE: services.nextcloud.config is only used for the initial setup, afterwards Nextcloud's stateful config takes precedence
       config = {
