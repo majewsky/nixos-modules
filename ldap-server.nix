@@ -39,6 +39,11 @@ let
     -----END CERTIFICATE-----
   '';
 
+  # TODO 23.11: replace with default package if sufficiently upgraded
+  portunusPackage = pkgs.callPackage ./pkgs/portunus/default.nix {
+    buildGoModule = pkgs.channels.unstable.buildGoModule; # requires Go 1.21
+  };
+
 in {
 
   imports = [
@@ -82,6 +87,7 @@ in {
       enable = true;
       port = internalListenPorts.portunus;
       ldap.suffix = cfg.ldapSuffix;
+      package = portunusPackage;
     };
 
     systemd.services.portunus.after = [
