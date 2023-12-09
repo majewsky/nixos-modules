@@ -17,7 +17,7 @@ buildGoModule rec {
 
   buildInputs = [ libxcrypt-legacy ];
 
-  vendorSha256 = null;
+  vendorHash = null;
 
   postInstall = ''
     mv $out/bin/{,portunus-}orchestrator
