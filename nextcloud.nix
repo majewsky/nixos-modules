@@ -50,8 +50,8 @@ in {
     };
 
     services.postgresql = {
-      package = pkgs.postgresql_15;
-      dataDir = "/var/lib/postgresql-15";
+      package = pkgs.postgresql_16;
+      dataDir = "/var/lib/postgresql/16";
     };
 
   };
