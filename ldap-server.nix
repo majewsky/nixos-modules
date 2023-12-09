@@ -39,10 +39,8 @@ let
     -----END CERTIFICATE-----
   '';
 
-  # TODO 23.11: replace with default package if sufficiently upgraded
-  portunusPackage = pkgs.callPackage ./pkgs/portunus/default.nix {
-    buildGoModule = pkgs.channels.unstable.buildGoModule; # requires Go 1.21
-  };
+  # TODO 24.05: replace with default package if sufficiently upgraded
+  portunusPackage = pkgs.callPackage ./pkgs/portunus/default.nix {};
 
 in {
 
