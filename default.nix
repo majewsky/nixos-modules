@@ -170,6 +170,9 @@ in {
       SystemMaxUse=512M
     '';
 
+    # nixos-manual-html.drv is frequently causing autoupgrade on my smaller VMs to die to OOM
+    documentation.nixos.enable = config.my.workstation.enabled;
+
   };
 
 }
