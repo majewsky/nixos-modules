@@ -21,13 +21,22 @@ let
 
   serviceDiscoveryPackage = pkgs.callPackage ./pkgs/prometheus-minimum-viable-sd/default.nix {};
 
+  collectorRulesYAML = pkgs.writeText "prometheus-rules.yaml" ''
+    groups:
+      - name: collector
+        rules:
+          - record: node_power_supply_charge_watthours
+            expr: node_power_supply_charge_ampere * node_power_supply_voltage_volt
+  '';
+
   collectorConfigYAML = pkgs.writeText "prometheus-collector.yaml" ''
     global:
       scrape_interval:     60s
       evaluation_interval: 60s
       scrape_timeout:      5s
 
-    rule_files: []
+    rule_files:
+      - ${collectorRulesYAML}
 
     scrape_configs:
       - job_name: prometheus-collector
@@ -75,6 +84,8 @@ let
             - node_network_transmit_bytes_total
             # other things that interest me
             - node_hwmon_temp_celsius
+            - node_power_supply_charge_ampere
+            - node_power_supply_charge_watthours
   '';
 
   instances = {
