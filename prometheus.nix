@@ -21,7 +21,7 @@ let
 
   serviceDiscoveryPackage = pkgs.callPackage ./pkgs/prometheus-minimum-viable-sd/default.nix {};
 
-  collectorRulesYAML = pkgs.writeText "prometheus-rules.yaml" ''
+  collectorRulesYAML = pkgs.writeText "prometheus-collector-rules.yaml" ''
     groups:
       - name: collector
         rules:
@@ -52,13 +52,24 @@ let
           - files: ['/run/prometheus/services.json']
   '';
 
+  persisterRulesYAML = pkgs.writeText "prometheus-persister.yaml" ''
+    groups:
+      - name: collector
+        rules:
+            # This rule tries very hard to continue existing even if the node is down for a bit.
+            # I collect this to measure uptime percentage.
+          - record: node_up
+            expr: (node_load1*0+1) or (min_over_time(node_load1[14d])*0+0)
+  '';
+
   persisterConfigYAML = pkgs.writeText "prometheus-persister.yaml" ''
     global:
       scrape_interval:     15s
       evaluation_interval: 60s
       scrape_timeout:      5s
 
-    rule_files: []
+    rule_files:
+      - ${persisterRulesYAML}
 
     scrape_configs:
       - job_name: federate
