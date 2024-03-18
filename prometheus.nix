@@ -52,7 +52,7 @@ let
           - files: ['/run/prometheus/services.json']
   '';
 
-  persisterRulesYAML = pkgs.writeText "prometheus-persister.yaml" ''
+  persisterRulesYAML = pkgs.writeText "prometheus-persister-rules.yaml" ''
     groups:
       - name: collector
         rules:
