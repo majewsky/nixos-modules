@@ -33,7 +33,7 @@ in {
     services.nextcloud = {
       enable = true;
       hostName = cfg.domainName;
-      package = pkgs.nextcloud27;
+      package = pkgs.nextcloud29;
 
       database.createLocally = true;
 
@@ -46,6 +46,14 @@ in {
         adminuser = "root";
         overwriteProtocol = "https";
         defaultPhoneRegion = "DE";
+      };
+
+      extraOptions = { # TODO: rename to `settings` in NixOS 24.05
+        maintenance_window_start = 3; # perform background maintenance tasks starting at 3AM, after borgbackup-root (at 02:00)
+      };
+
+      phpOptions = {
+        "opcache.interned_strings_buffer" = "16"; # in MiB; default is 8, but NextCloud admin panel told me to increase it
       };
     };
 
