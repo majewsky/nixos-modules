@@ -53,7 +53,6 @@ in {
     ./plain-websites.nix
     ./prometheus.nix
     ./static-websites.nix
-    ./vt6-website.nix
     ./workstation.nix
     ./workstation-headless.nix
     ./workstation-wireless.nix
