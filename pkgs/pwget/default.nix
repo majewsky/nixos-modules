@@ -12,8 +12,6 @@ buildGoModule rec {
   };
 
   vendorHash = null;
-  subpackages = [ "." ];
-  ldflags = "-s -w";
 
   meta = with lib; {
     description = "Stateless password generator with support for password revocation";

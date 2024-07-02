@@ -12,8 +12,6 @@ buildGoModule rec {
   };
 
   vendorHash = null;
-  subpackages = [ "." ];
-  ldflags = "-s -w";
 
   meta = with lib; {
     description = "Minimum Viable service discovery for Prometheus";

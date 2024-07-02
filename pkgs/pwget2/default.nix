@@ -12,8 +12,6 @@ buildGoModule rec {
   };
 
   vendorHash = null;
-  subpackages = [ "." ];
-  ldflags = "-s -w";
 
   postInstall = ''
     mv $out/bin/pwget $out/bin/pwget2

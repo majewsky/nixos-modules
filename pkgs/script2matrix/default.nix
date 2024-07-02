@@ -12,8 +12,6 @@ buildGoModule rec {
   };
 
   vendorHash = null;
-  subpackages = [ "." ];
-  ldflags = "-s -w";
 
   meta = with lib; {
     description = "Runs a script and sends its stdout to a Matrix chat.";
