@@ -39,9 +39,6 @@ let
     -----END CERTIFICATE-----
   '';
 
-  # TODO 24.05: replace with default package if sufficiently upgraded
-  portunusPackage = pkgs.callPackage ./pkgs/portunus/default.nix {};
-
 in {
 
   imports = [
