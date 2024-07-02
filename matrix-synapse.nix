@@ -38,6 +38,17 @@ in {
     services.matrix-synapse.settings = {
       database.name = "sqlite3";
 
+      listeners = [
+        {
+          port = 8008;
+          bind_addresses = [ "::1" ];
+          resources = [ { compress = false;  names = [ "client" "federation" ]; } ];
+          type = "http";
+          tls = false;
+          x_forwarded = true;
+        }
+      ];
+
       allow_guest_access = false;
       enable_registration = false;
       media_store_path = "${cfg.dataDir}/media"; # TODO move to new default `$dataDir/media_store`
