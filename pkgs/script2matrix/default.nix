@@ -2,13 +2,13 @@
 
 buildGoModule rec {
   pname = "script2matrix";
-  version = "0.1.0";
+  version = "0.2.0";
 
   src = fetchFromGitHub {
     owner = "majewsky";
     repo = pname;
     rev = "v${version}";
-    sha256 = "0h11kfj9yargmma097d96810j6irnsy32zd3a8i6m5n93c1444cj";
+    sha256 = "sha256-akb4s6drNGgxO7DDp3h15/y4WpxS9dkcv/a5ZsLL2AE=";
   };
 
   vendorHash = null;
