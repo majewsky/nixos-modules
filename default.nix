@@ -124,12 +124,12 @@ in {
       pv
       ripgrep
       rsync
-      screen
       strace
       sqlite-interactive
       tcpdump
       traceroute
       tree
+      unixtools.xxd
       units
       (if config.my.workstation.enabled then vimHugeX else vim)
       wget
@@ -155,6 +155,8 @@ in {
       shell = pkgs.zsh;
       openssh.authorizedKeys.keyFiles = [ /nix/my/unpacked/ssh-keys ];
     };
+
+    programs.screen.enable = true;
 
     programs.zsh = {
       # make zsh work as a login shell; cf. https://github.com/NixOS/nixpkgs/issues/20548
