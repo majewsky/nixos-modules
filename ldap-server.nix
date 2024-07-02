@@ -82,7 +82,6 @@ in {
       enable = true;
       port = internalListenPorts.portunus;
       ldap.suffix = cfg.ldapSuffix;
-      package = portunusPackage;
     };
 
     systemd.services.portunus.after = [
