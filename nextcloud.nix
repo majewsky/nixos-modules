@@ -44,12 +44,12 @@ in {
         dbname = "nextcloud";
         adminpassFile = toString /var/lib/nextcloud-root-password;
         adminuser = "root";
-        overwriteProtocol = "https";
-        defaultPhoneRegion = "DE";
       };
 
-      extraOptions = { # TODO: rename to `settings` in NixOS 24.05
+      settings = {
         maintenance_window_start = 3; # perform background maintenance tasks starting at 3AM, after borgbackup-root (at 02:00)
+        overwriteprotocol = "https";
+        default_phone_region = "DE";
       };
 
       phpOptions = {
