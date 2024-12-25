@@ -18,6 +18,9 @@ in {
 
   config = mkIf (cfg.domainName != null) {
 
+    # ref: <https://github.com/NixOS/nixpkgs/pull/334638>
+    nixpkgs.config.permittedInsecurePackages = [ "jitsi-meet-1.0.8043" ];
+
     services.jitsi-meet = {
       enable = true;
       hostName = cfg.domainName;
