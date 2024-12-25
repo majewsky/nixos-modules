@@ -46,6 +46,9 @@ with lib; {
       interface = "ens3";
     };
 
+    # as of 24.11, the default start script for this unit does not pass shellcheck(1)
+    systemd.services.network-addresses-ens3.enableStrictShellChecks = false;
+
     # misc
     services.haveged.enable = true;
   };

@@ -39,6 +39,10 @@ in {
 
     services.jitsi-videobridge.openFirewall = true;
 
+    # as of 24.11, the default start script for these units do not pass shellcheck(1)
+    systemd.services.jicofo.enableStrictShellChecks = false;
+    systemd.services.jitsi-videobridge2.enableStrictShellChecks = false;
+
   };
 
 }
