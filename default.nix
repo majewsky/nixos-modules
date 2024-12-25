@@ -168,6 +168,9 @@ in {
     # nixos-manual-html.drv is frequently causing autoupgrade on my smaller VMs to die to OOM
     documentation.nixos.enable = config.my.workstation.enabled;
 
+    # recommended since NixOS 24.11
+    systemd.enableStrictShellChecks = true;
+
   };
 
 }
