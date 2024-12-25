@@ -19,7 +19,9 @@ in {
   config = mkIf (cfg.domainName != null) {
 
     # ref: <https://github.com/NixOS/nixpkgs/pull/334638>
-    nixpkgs.config.permittedInsecurePackages = [ "jitsi-meet-1.0.8043" ];
+    nixpkgs.config.allowInsecurePredicate = pkg: builtins.elem (lib.getName pkg) [
+      "jitsi-meet"
+    ];
 
     services.jitsi-meet = {
       enable = true;
