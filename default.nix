@@ -94,15 +94,9 @@ in {
     # basic setup for interactive use
 
     system.autoUpgrade.enable = mkDefault (!config.my.workstation.enabled); # auto-upgrade only on servers
-    nix = {
-      gc = {
-        automatic = mkDefault true;
-        options = "--delete-older-than 3d";
-      };
-      package = pkgs.nixFlakes;
-      extraOptions = ''
-        experimental-features = nix-command flakes
-      '';
+    nix.gc = {
+      automatic = mkDefault true;
+      options = "--delete-older-than 3d";
     };
 
     environment.systemPackages = with pkgs; [
