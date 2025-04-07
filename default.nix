@@ -140,7 +140,14 @@ in {
     services.timesyncd.servers = [ "ptbtime1.ptb.de" ];
 
     boot.tmp.useTmpfs = true;
-    services.openssh.enable = true;
+    services.openssh = {
+      enable = true;
+      settings = {
+        KbdInteractiveAuthentication = false;
+        PasswordAuthentication = false;
+        PermitRootLogin = "no";
+      };
+    };
 
     users.users.stefan = {
       isNormalUser = true;
