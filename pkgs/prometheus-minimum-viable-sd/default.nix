@@ -2,13 +2,13 @@
 
 buildGoModule rec {
   pname = "prometheus-minimum-viable-sd";
-  version = "1.0.0";
+  version = "1.0.1";
 
   src = fetchFromGitHub {
     owner = "majewsky";
     repo = pname;
     rev = "v${version}";
-    sha256 = "1j4d7rn0jff4bdwpvb6mszrjb7i123h4kbqhjylr159dpmzqi6h2";
+    sha256 = "sha256-g7l5fsBotffNqOpqRpNdE2p7Nyn2m8wuFHGSrIfs1tk=";
   };
 
   vendorHash = null;
