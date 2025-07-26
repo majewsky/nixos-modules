@@ -1,4 +1,5 @@
 # This module imports every other module in the repo root directory.
+# It also sets up a basic commandline-based system for interactive use.
 # REPLACES hologram-base
 # REPLACES hologram-openssh
 
@@ -69,35 +70,14 @@ in {
   };
 
   config = {
-    ############################################################################
-    # package overrides (copy-pasted from j03, thx!)
-
-    nixpkgs.config.packageOverrides = pkgs: {
-      channels = {
-        # It seems like numeric channel names are not updated correctly to
-        #   /nix/var/nix/profiles/per-user/root/channels/
-        # when using:
-        #   nixos-rebuild switch --upgrade
-        # however this works:
-        #   nix-channel --update
-
-        ## nix-channel --add https://nixos.org/channels/nixos-unstable nixos-unstable
-        unstable = import <nixos-unstable>
-          { config = config.nixpkgs.config; };
-        ## nix-channel --add https://nixos.org/channels/nixos-18.09 nixos-eighteen-nine
-        # nix1809 = import <nixos-eighteen-nine>
-        #   { config = config.nixpkgs.config; };
-      };
-    };
-
-    ############################################################################
-    # basic setup for interactive use
-
     system.autoUpgrade.enable = mkDefault (!config.my.workstation.enabled); # auto-upgrade only on servers
     nix.gc = {
       automatic = mkDefault true;
       options = "--delete-older-than 3d";
     };
+
+    # disable cross-compiling (as per the 25.05 release notes, this can speed up evaluation time)
+    nixpkgs.config.allowVariants = false;
 
     environment.systemPackages = with pkgs; [
       age     # for decrypting the secrets in this repo
@@ -131,9 +111,10 @@ in {
     ];
 
     i18n = {
+      defaultCharset = "UTF-8";
       defaultLocale = "de_DE.UTF-8";
-      extraLocaleSettings.LC_MESSAGES = "C";
-      supportedLocales = [ "de_DE.UTF-8/UTF-8" "en_US.UTF-8/UTF-8" ];
+      extraLocaleSettings.LC_MESSAGES = "C.UTF-8";
+      extraLocales = [ "en_US.UTF-8/UTF-8" "C.UTF-8/UTF-8" ];
     };
 
     time.timeZone = "Europe/Berlin";
