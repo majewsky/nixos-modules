@@ -14,6 +14,13 @@ with lib; {
       example = "2001:0db8:dead:beef::1";
       type = types.str;
     };
+
+    rootDeviceUUID = mkOption {
+      default = null;
+      description = "device UUID for the root filesystem partition";
+      example = "6f296c44-4686-43c6-b27e-b7af28818f1a";
+      type = types.nullOr types.str;
+    };
   };
 
   config = {
@@ -27,8 +34,8 @@ with lib; {
     boot.initrd.availableKernelModules = [
       "ata_piix" "uhci_hcd" "virtio_pci" "sd_mod" "sr_mod"
     ];
-    fileSystems."/" = {
-      device = "/dev/sda1";
+    fileSystems."/" = let uuid = config.my.hetzner-cloud.rootDeviceUUID; in {
+      device = if uuid == null then "/dev/sda1" else "/dev/disk/by-uuid/${uuid}";
       fsType = "ext4";
     };
     swapDevices = [];
