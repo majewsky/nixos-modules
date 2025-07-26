@@ -15,3 +15,6 @@ build: apply
 	sudo nixos-rebuild build
 switch: apply
 	sudo nixos-rebuild switch --upgrade
+
+complete-ongoing-builds:
+	nix-build --no-out-link /nix/store/*-nixos-system-$(shell cat /etc/hostname)-*.drv
