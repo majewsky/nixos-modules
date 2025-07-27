@@ -44,6 +44,7 @@ in {
     ./grafana.nix
     ./hardening.nix
     ./jitsi-meet.nix
+    ./kanboard.nix
     ./ldap-client.nix
     ./ldap-server.nix
     ./matrix-synapse.nix
