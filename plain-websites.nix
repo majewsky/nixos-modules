@@ -56,6 +56,8 @@ in {
 
       extraConfig = ''
         charset utf-8;
+        source_charset utf-8;
+        charset_types text/html text/xml text/plain application/javascript application/rss+xml text/markdown; # adds text/markdown to the default
 
         # recommended HTTP headers according to https://securityheaders.io
         add_header Strict-Transport-Security "max-age=15768000; includeSubDomains" always; # six months
