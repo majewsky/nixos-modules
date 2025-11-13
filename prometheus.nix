@@ -97,6 +97,7 @@ let
             - node_hwmon_temp_celsius
             - node_power_supply_charge_ampere
             - node_power_supply_charge_watthours
+            - up
   '';
 
   instances = {
