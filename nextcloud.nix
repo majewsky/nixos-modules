@@ -36,7 +36,7 @@ in {
     services.nextcloud = {
       enable = true;
       hostName = cfg.domainName;
-      package = pkgs.nextcloud31;
+      package = pkgs.nextcloud32;
 
       database.createLocally = true;
 
