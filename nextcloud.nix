@@ -8,6 +8,9 @@ let
 
   cfg = config.my.services.nextcloud;
 
+  postgresVersion = 17;
+  prepareForNextPostgresVersion = false;
+
 in {
 
   options.my.services.nextcloud = {
@@ -58,9 +61,34 @@ in {
     };
 
     services.postgresql = {
-      package = pkgs.postgresql_17;
-      dataDir = "/var/lib/postgresql/17";
+      package = pkgs."postgresql_${toString postgresVersion}";
+      dataDir = "/var/lib/postgresql/${toString postgresVersion}";
     };
+
+    environment.systemPackages = mkIf prepareForNextPostgresVersion [
+      (let
+        oldPgVersion = toString postgresVersion;
+        newPgVersion = toString (postgresVersion + 1);
+
+        oldPgBin = pkgs."postgresql_${oldPgVersion}";
+        newPgBin = pkgs."postgresql_${newPgVersion}";
+
+        oldPgData = "/var/lib/postgresql/${oldPgVersion}";
+        newPgData = "/var/lib/postgresql/${newPgVersion}";
+      in pkgs.writeScriptBin "upgrade-pg-cluster" ''
+        set -eux
+        systemctl stop postgresql.service phpfpm-nextcloud.service
+
+        install -d -m 0700 -o postgres -g postgres "${newPgData}"
+        cd "${newPgData}"
+        sudo -u postgres "${newPgBin}/initdb" -D "${newPgData}" ${lib.escapeShellArgs config.services.postgresql.initdbArgs}
+
+        sudo -u postgres "${newPgBin}/pg_upgrade" \
+          --old-datadir "${oldPgData}" --new-datadir "${newPgData}" \
+          --old-bindir "${oldPgBin}" --new-bindir "${newPgBin}" \
+          "$@"
+      '')
+    ];
 
   };
 
