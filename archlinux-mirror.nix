@@ -97,7 +97,7 @@ in {
       description = "sync Arch Linux package mirror";
       requires = [ "network-online.target" "archlinux-mirror-early.service" ];
       after = [ "network.target" "network-online.target" "archlinux-mirror-early.service" ];
-      path = with pkgs; [ bash curl diffutils rsync utillinux ];
+      path = with pkgs; [ bash curl diffutils rsync util-linux ];
 
       serviceConfig = {
         Type = "oneshot";

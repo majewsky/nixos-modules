@@ -134,7 +134,7 @@ in {
 
         serviceConfig = {
           ExecStart = "${pkgs.prometheus}/bin/prometheus --config.file=${serviceOpts.configYAML} --storage.tsdb.path=/var/lib/${serviceName} --web.listen-address=:${toString serviceOpts.port} --storage.tsdb.retention.time=${serviceOpts.retention}";
-          ExecReload = "${pkgs.utillinux}/bin/kill -HUP $MAINPID";
+          ExecReload = "${pkgs.util-linux}/bin/kill -HUP $MAINPID";
 
           User = "prometheus";
           Group = "prometheus";
