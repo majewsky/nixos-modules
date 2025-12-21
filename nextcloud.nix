@@ -8,7 +8,7 @@ let
 
   cfg = config.my.services.nextcloud;
 
-  postgresVersion = 17;
+  postgresVersion = 18;
   prepareForNextPostgresVersion = false;
 
 in {
@@ -70,8 +70,8 @@ in {
         oldPgVersion = toString postgresVersion;
         newPgVersion = toString (postgresVersion + 1);
 
-        oldPgBin = pkgs."postgresql_${oldPgVersion}";
-        newPgBin = pkgs."postgresql_${newPgVersion}";
+        oldPgPackage = pkgs."postgresql_${oldPgVersion}";
+        newPgPackage = pkgs."postgresql_${newPgVersion}";
 
         oldPgData = "/var/lib/postgresql/${oldPgVersion}";
         newPgData = "/var/lib/postgresql/${newPgVersion}";
@@ -81,11 +81,11 @@ in {
 
         install -d -m 0700 -o postgres -g postgres "${newPgData}"
         cd "${newPgData}"
-        sudo -u postgres "${newPgBin}/initdb" -D "${newPgData}" ${lib.escapeShellArgs config.services.postgresql.initdbArgs}
+        sudo -u postgres "${newPgPackage}/bin/initdb" -D "${newPgData}" ${lib.escapeShellArgs config.services.postgresql.initdbArgs}
 
-        sudo -u postgres "${newPgBin}/pg_upgrade" \
+        sudo -u postgres "${newPgPackage}/bin/pg_upgrade" \
           --old-datadir "${oldPgData}" --new-datadir "${newPgData}" \
-          --old-bindir "${oldPgBin}" --new-bindir "${newPgBin}" \
+          --old-bindir "${oldPgPackage}/bin" --new-bindir "${newPgPackage}/bin" \
           "$@"
       '')
     ];
