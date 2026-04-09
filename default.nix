@@ -39,6 +39,7 @@ in {
   imports = [
     ./archlinux-mirror.nix
     ./borgbackup-sender.nix
+    ./cgit.nix
     ./gitconfig.nix
     ./gitea.nix
     ./grafana.nix
