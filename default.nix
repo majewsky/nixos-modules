@@ -42,6 +42,7 @@ in {
     ./cgit.nix
     ./gitconfig.nix
     ./gitea.nix
+    ./go-vanity.nix
     ./grafana.nix
     ./hardening.nix
     ./jitsi-meet.nix
