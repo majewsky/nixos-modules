@@ -29,6 +29,7 @@ in {
         readme = ":README.md";
         snapshots = "tar.gz";
       };
+      gitHttpBackend.enable = false;
     };
 
     services.nginx.virtualHosts.${cfg.domainName} = {
