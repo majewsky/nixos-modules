@@ -1,10 +1,19 @@
-{ config, pkgs, lib, options, ... }:
+{ config, pkgs, lib, ... }:
 
 with lib;
 
 let
 
   cfg = config.my.services.cgit;
+
+  aboutFilter = pkgs.writeShellScript "cgit-about-filter.sh" ''
+    set -euo pipefail
+    if echo "$1" | grep -qi '\.md$'; then
+      ${pkgs.lowdown}/bin/lowdown -o -
+    else
+      cat -
+    fi
+  '';
 
 in {
 
@@ -21,6 +30,7 @@ in {
       enable = true;
       scanPath = "/var/lib/cgit";
       settings = {
+        about-filter = "${aboutFilter}";
         branch-sort = "age";
         enable-index-links = 1;
         enable-commit-graph = 1;
