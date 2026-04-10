@@ -41,6 +41,12 @@ let
     ${lib.concatMapAttrsStringSep "\n" (basename: content: "cat > $out/${basename}.html <<-'EOF'\n${lib.trim content}\nEOF") allDocuments}
   '';
 
+  nginxLocationsForRepo = repoName: {
+    "/${repoName}/".return = "301 /${repoName}.html";
+    "= /${repoName}".return = "301 /${repoName}.html";
+  };
+  nginxLocations = (lib.mergeAttrsList (map nginxLocationsForRepo cfg.repos)) // { "/".root = "${docroot}"; };
+
 in {
 
   options.my.services.go-vanity = {
@@ -65,9 +71,7 @@ in {
     services.nginx.virtualHosts.${cfg.domainName} = {
       forceSSL = true;
       enableACME = true;
-      locations."/".root = "${docroot}";
-      locations."/oblast/".return = "301 /oblast.html";
-      locations."= /oblast".return = "301 /oblast.html";
+      locations = nginxLocations;
     };
   };
 
