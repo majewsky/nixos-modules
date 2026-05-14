@@ -17,17 +17,17 @@ in {
     <nixos-hardware/common/cpu/amd>
   ];
 
-  options.my.polyphemus = {
-    boot.device = mkOption {
-      description = "the device path for the EFI boot partition";
-      example = "/dev/sda1";
-      type = types.str;
-    };
-    root.device = mkOption {
-      description = "the device path for the encrypted root partition";
-      example = "/dev/sda2";
-      type = types.str;
-    };
+  options.my.polyphemus = let
+    mkStrOpt = description: mkOption { inherit description; type = types.str; };
+    mkStrOptWithDefault = default: description: mkOption { inherit description default; type = types.str; };
+  in {
+    boot.device = mkStrOpt "the device path for the EFI boot partition";      # e.g. "/dev/disk/by-uuid/xxx"
+    root.device = mkStrOpt"the device path for the encrypted root partition"; # e.g. "/dev/disk/by-uuid/xxx"
+
+    lan.interface = mkStrOptWithDefault "enp3s0" "the name of the LAN-facing ethernet interface";
+    wan.interface = mkStrOptWithDefault "enp2s0" "the name of the WAN-facing ethernet interface";
+    wan.ppp.username = mkStrOpt "the username for PPPoE on the WAN-facing ethernet interface";
+    wan.ppp.peerName = mkStrOptWithDefault "sachsenenergie" "the name of the PPPoE peer in pppd";
   };
 
   config = {
@@ -70,6 +70,37 @@ in {
     networking.useNetworkd = true;
     systemd.network.enable = true;
     services.resolved.enable = true;
+
+    # PPPoE on WAN
+    environment.etc."ppp/pap-secrets".text = ''
+      "${cfg.wan.ppp.username}" * "@/nix/my/unpacked/pppoe-password"
+    '';
+    services.pppd = {
+      enable = true;
+      peers.${cfg.wan.ppp.peerName} = {
+        enable = true;
+        autostart = true;
+
+        # config originally copied from <https://ipoac.nl/texts/pppd-systemd-networkd.html>,
+        # with the following custom amendments:
+        # - removed "up_sdnotify" since the NixOS module already sets this
+        # - tried with "mtu 1508", but no effect (the ISP might negotiate us back down)
+        config = ''
+          ifname wan
+          local
+          noauth
+          +ipv6
+          defaultroute
+          persist
+          mtu 1500
+          mru 1500
+          plugin pppoe.so
+          user "${cfg.wan.ppp.username}"
+          nic-${cfg.wan.interface}
+          lcp-echo-adaptive
+        '';
+      };
+    };
 
   };
 
