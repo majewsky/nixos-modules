@@ -85,8 +85,9 @@ in {
         # with the following custom amendments:
         # - removed "up_sdnotify" since the NixOS module already sets this
         # - tried with "mtu 1508", but no effect (the ISP might negotiate us back down)
+        # - tried with "noipv6" and having networkd accept RA, but does not work for some reason (no /64 addrs configured and DHCPv6-PD is AWOL)
         config = ''
-          ifname wan
+          ifname ppp0
           local
           noauth
           +ipv6
@@ -110,6 +111,38 @@ in {
       # and systemd-network will only do so if there is a matching network config
       name = cfg.wan.interface;
       linkConfig.ActivationPolicy = "up";
+    };
+
+    # network configuration of PPP link: pppd by itself does RA and gives us /64 addresses,
+    # but for routing IPv6 to downstream LANs, we need a larger subnet via DHCPv6-PD
+    systemd.network.networks.ppp = {
+      matchConfig.Type = "ppp";
+      linkConfig = {
+        ActivationPolicy = "manual";
+        RequiredForOnline = "no";
+      };
+      networkConfig = {
+        DHCP = "ipv6";
+        DHCPPrefixDelegation = true; # this is also needed on the same interface where PD was performed, or we have no public IPv6 addresses at all
+        IPv6AcceptRA = false;
+      };
+      dhcpV6Config = {
+        WithoutRA = "solicit";
+        PrefixDelegationHint = "::/56";
+      };
+      routes = [
+        { Gateway = "::"; } # setup the IPv6 default route through this interface (pppd does the IPv4 default route)
+      ];
+    };
+
+    # network configuration of LAN link: send RA based on delegated prefix on WAN
+    systemd.network.networks.lan = {
+      name = cfg.lan.interface;
+      networkConfig = {
+        IPv6AcceptRA = false;
+        IPv6SendRA = true;
+        DHCPPrefixDelegation = true;
+      };
     };
 
   };
