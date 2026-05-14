@@ -32,6 +32,12 @@ in {
 
   config = {
 
+    # additional host identity
+    environment.variables = {
+      PRETTYPROMPT_COMMONUSER = "stefan";
+      PRETTYPROMPT_HOSTCOLOR = "0;31";
+    };
+
     # boot loader
     boot.loader.systemd-boot.enable = true;
     boot.loader.efi.canTouchEfiVariables = true;
