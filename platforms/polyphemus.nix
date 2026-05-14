@@ -73,7 +73,7 @@ in {
 
     # PPPoE on WAN
     environment.etc."ppp/pap-secrets".text = ''
-      "${cfg.wan.ppp.username}" * "@/nix/my/unpacked/pppoe-password"
+      "${cfg.wan.ppp.username}" * "@/run/credentials/pppd-${cfg.wan.ppp.peerName}.service/pppoe-password"
     '';
     services.pppd = {
       enable = true;
@@ -100,6 +100,16 @@ in {
           lcp-echo-adaptive
         '';
       };
+    };
+    systemd.services."pppd-${cfg.wan.ppp.peerName}" = {
+      # pppd.service is quite locked down, so it cannot read password files from just anywhere
+      serviceConfig.LoadCredential = "pppoe-password:/nix/my/unpacked/pppoe-password";
+    };
+    systemd.network.networks.wan = {
+      # pppd will refuse to do anything unless someone sets the IFF_UP flag on the NIC,
+      # and systemd-network will only do so if there is a matching network config
+      name = cfg.wan.interface;
+      linkConfig.ActivationPolicy = "up";
     };
 
   };
