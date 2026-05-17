@@ -160,6 +160,8 @@ in {
         EmitNTP = false;
         EmitSIP = false;
       };
+      # only ppp0 is relevant for systemd-networkd-wait-online.service
+      linkConfig.RequiredForOnline = false;
     };
 
     # firewall configuration: allow LAN users to reach WAN (this requires manual sysctl for IPv6 forwarding,
