@@ -73,6 +73,8 @@ let
     echo "Uptime: $(uptime)"
   '';
 
+  # TODO: under UEFI, CURRENT_KERNEL = readlink -f $(dirname $(tr ' ' '\n' < /proc/cmdline | awk -F= '$1=="init"{print$2}'))/kernel
+
   isServer = cfg.network.server.clients != [];
   isClient = !isServer;
 

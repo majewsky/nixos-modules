@@ -149,6 +149,7 @@ in {
         IPv6AcceptRA = false;
         IPv6SendRA = true;
         DHCPPrefixDelegation = true;
+        # TODO: announce smaller MTU
       };
       dhcpServerConfig = {
         ServerAddress = [ "10.0.0.${toString config.my.machineID}/24" ];
