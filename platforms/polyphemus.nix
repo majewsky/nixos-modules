@@ -126,6 +126,10 @@ in {
         DHCP = "ipv6";
         DHCPPrefixDelegation = true; # this is also needed on the same interface where PD was performed, or we have no public IPv6 addresses at all
         IPv6AcceptRA = false;
+        DNSDefaultRoute = true;
+        # options for resiliency against systemd-networkd reload or restart
+        KeepConfiguration = "static"; # do not remove IPv4 address provisioned by pppd
+        DefaultRouteOnDevice = true;  # systemd-networkd will still kill the IPv4 default route, so make it add its own one (i.e. we sometimes get two, but whatever)
       };
       dhcpV6Config = {
         WithoutRA = "solicit";
