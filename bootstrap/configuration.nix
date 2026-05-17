@@ -19,7 +19,7 @@ in {
   } else {
     grub.enable = true;
     grub.version = 2;
-    grub.device = "/dev/sda"
+    grub.device = "/dev/sda";
   };
 
   networking.hostName = cfg.hostName;
