@@ -49,6 +49,13 @@ let
 
     # check if auto-upgrade installed a kernel that is not yet booted
     CURRENT_KERNEL="$(tr ' ' '\n' < /proc/cmdline | grep BOOT_IMAGE | sed 's,.*/nix/store/,/nix/store/,')"
+    if [ -z "$CURRENT_KERNEL" ]; then
+       # UEFI (systemd-boot) has a different-looking cmdline than BIOS (Grub)
+       CURRENT_INIT="$(tr ' ' '\n' < /proc/cmdline | awk -F= '$1=="init"{print$2}')"
+       if [ -n "$CURRENT_INIT" ]; then
+         CURRENT_KERNEL="$(readlink -f "${"$"}{CURRENT_INIT%/init}/kernel")"
+       fi
+    fi
     DESIRED_KERNEL="$(readlink -f /run/current-system/kernel)"
     if [ "$CURRENT_KERNEL" != "$DESIRED_KERNEL" ]; then
         echo ":: Reboot is required to activate new kernel."
@@ -228,7 +235,7 @@ in {
       description = "daily health check that reports to Matrix chat";
       requires = [ "network-online.target" ];
       after = [ "network.target" "network-online.target" ];
-      path = with pkgs; [ bash script2matrix health-check-script ];
+      path = with pkgs; [ bash gawk script2matrix health-check-script ];
       startAt = "6,18:00:00"; # at 06:00 and 18:00
 
       environment = {
