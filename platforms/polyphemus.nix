@@ -21,8 +21,8 @@ in {
     mkStrOpt = description: mkOption { inherit description; type = types.str; };
     mkStrOptWithDefault = default: description: mkOption { inherit description default; type = types.str; };
   in {
-    boot.device = mkStrOpt "the device path for the EFI boot partition";      # e.g. "/dev/disk/by-uuid/xxx"
-    root.device = mkStrOpt"the device path for the encrypted root partition"; # e.g. "/dev/disk/by-uuid/xxx"
+    boot.device = mkStrOpt "the device path for the EFI boot partition"; # e.g. "/dev/disk/by-uuid/xxx"
+    root.device = mkStrOpt"the device path for the root partition";      # e.g. "/dev/disk/by-uuid/xxx"
 
     lan.interface = mkStrOptWithDefault "enp3s0" "the name of the LAN-facing ethernet interface";
     wan.interface = mkStrOptWithDefault "enp2s0" "the name of the WAN-facing ethernet interface";
@@ -54,9 +54,8 @@ in {
     boot.extraModulePackages = [ ];
 
     # filesystems
-    boot.initrd.luks.devices."root".device = cfg.root.device;
     fileSystems."/" = {
-      device = "/dev/mapper/root";
+      device = cfg.root.device;
       fsType = "ext4";
     };
     fileSystems."/boot" = {
