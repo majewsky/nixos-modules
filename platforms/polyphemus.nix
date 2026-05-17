@@ -159,7 +159,8 @@ in {
         PoolOffset = 100;
         PoolSize = 100;
         UplinkInterface = "ppp0";
-        EmitDNS = true; # TODO: announce local resolved as DNS, open port 53 on LAN
+        EmitDNS = true;
+        DNS = [ "_server_address" ]; # systemd-resolved listens here (see below)
         EmitNTP = false;
         EmitSIP = false;
       };
@@ -167,13 +168,18 @@ in {
       linkConfig.RequiredForOnline = false;
     };
 
+    # network configuration: announce systemd-resolved's local DNS resolver as the default DNS to LAN
+    services.resolved.extraConfig = ''
+      DNSStubListenerExtra = 10.0.0.${toString config.my.machineID}
+    '';
+
     # firewall configuration: allow LAN users to reach WAN (this requires manual sysctl for IPv6 forwarding,
     # because for some reason stock NixOS options only allow enable IPv6 forwarding when also enabling NATv6)
     networking.nftables.enable = true;
     networking.firewall = {
       backend = "nftables";
       filterForward = true;
-      interfaces.${cfg.lan.interface}.allowedUDPPorts = [ 67 68 ]; # DHCPv4 server
+      interfaces.${cfg.lan.interface}.allowedUDPPorts = [ 53 67 68 ]; # DNS and DHCPv4 servers
     };
     networking.nat = {
       enable = true;
