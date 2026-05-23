@@ -216,6 +216,7 @@ in {
       disabledCollectors = [ "wifi" "timex" ]; # timex collector doesn't work because of hardening, and I don't care to get it working
       openFirewall = true;
       firewallFilter = "-i wg-monitoring -p tcp -m tcp --dport 9100";
+      firewallRules = ''iifname wg-monitoring tcp dport 9100 accept comment "node-exporter"'';
     };
     # since the listen address refers to the monitoring network, wait until
     # that interface is set up
