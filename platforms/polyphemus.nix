@@ -83,7 +83,7 @@ in {
         # config originally copied from <https://ipoac.nl/texts/pppd-systemd-networkd.html>,
         # with the following custom amendments:
         # - removed "up_sdnotify" since the NixOS module already sets this
-        # - tried with "mtu 1508", but no effect (the ISP might negotiate us back down)
+        # - tried with "mtu 1508", but no effect (the ISP accepts "Max-Payload: 1500" during PPP Auto Discovery, but then negotiates us down during LCP)
         # - tried with "noipv6" and having networkd accept RA, but does not work for some reason (no /64 addrs configured and DHCPv6-PD is AWOL)
         config = ''
           ifname ppp0
@@ -106,12 +106,14 @@ in {
       serviceConfig.LoadCredential = "pppoe-password:/nix/my/unpacked/pppoe-password";
     };
     systemd.network.networks.wan = {
-      # pppd will refuse to do anything unless someone sets the IFF_UP flag on the NIC,
-      # and systemd-network will only do so if there is a matching network config
       name = cfg.wan.interface;
-      linkConfig.ActivationPolicy = "up";
-      # do not wait for a non-fe80 IP here, because this interface ain't getting any
-      linkConfig.RequiredForOnline = false;
+      linkConfig = {
+        # pppd will refuse to do anything unless someone sets the IFF_UP flag on the NIC,
+        # and systemd-network will only do so if there is a matching network config
+        ActivationPolicy = "up";
+        # do not wait for a non-fe80 IP here, because this interface ain't getting any
+        RequiredForOnline = false;
+      };
     };
 
     # network configuration of PPP link: pppd by itself does RA and gives us /64 addresses,
@@ -143,6 +145,10 @@ in {
     # network configuration of LAN link
     systemd.network.networks.lan = {
       name = cfg.lan.interface;
+      linkConfig = {
+        # only ppp0 is relevant for systemd-networkd-wait-online.service
+        RequiredForOnline = false;
+      };
       networkConfig = {
         # configure IPv4 address statically
         Address = [ "10.0.0.${toString config.my.machineID}/24" ];
@@ -152,7 +158,6 @@ in {
         IPv6AcceptRA = false;
         IPv6SendRA = true;
         DHCPPrefixDelegation = true;
-        # TODO: announce smaller MTU
       };
       dhcpServerConfig = {
         ServerAddress = [ "10.0.0.${toString config.my.machineID}/24" ];
@@ -164,8 +169,6 @@ in {
         EmitNTP = false;
         EmitSIP = false;
       };
-      # only ppp0 is relevant for systemd-networkd-wait-online.service
-      linkConfig.RequiredForOnline = false;
     };
 
     # network configuration: announce systemd-resolved's local DNS resolver as the default DNS to LAN
@@ -180,6 +183,13 @@ in {
       backend = "nftables";
       filterForward = true;
       interfaces.${cfg.lan.interface}.allowedUDPPorts = [ 53 67 68 ]; # DNS and DHCPv4 servers
+      # enable MSS clamping to fix path MTU discovery
+      # Ref: <https://wiki.nftables.org/wiki-nftables/index.php/Mangling_packet_headers>
+      # Ref: <https://k1024.org/posts/2023/2023-04-16-nftables-tcp-clamp-mss/>
+      extraForwardRules = ''
+        iifname ppp0 tcp flags syn tcp option maxseg size set rt mtu counter comment "enable MSS clamping"
+        oifname ppp0 tcp flags syn tcp option maxseg size set rt mtu counter comment "enable MSS clamping"
+      '';
     };
     networking.nat = {
       enable = true;
