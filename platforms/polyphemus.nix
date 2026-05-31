@@ -22,7 +22,7 @@ in {
     mkStrOptWithDefault = default: description: mkOption { inherit description default; type = types.str; };
   in {
     boot.device = mkStrOpt "the device path for the EFI boot partition"; # e.g. "/dev/disk/by-uuid/xxx"
-    root.device = mkStrOpt"the device path for the root partition";      # e.g. "/dev/disk/by-uuid/xxx"
+    root.device = mkStrOpt "the device path for the root partition";     # e.g. "/dev/disk/by-uuid/xxx"
 
     lan.interface = mkStrOptWithDefault "enp3s0" "the name of the LAN-facing ethernet interface";
     wan.interface = mkStrOptWithDefault "enp2s0" "the name of the WAN-facing ethernet interface";
@@ -203,6 +203,13 @@ in {
       # Ref: <http://strugglers.net/~andy/blog/2011/09/04/linux-ipv6-router-advertisements-and-forwarding/>
       "net.ipv6.conf.all.accept_ra" = 2;
       "net.ipv6.conf.default.accept_ra" = 2;
+    };
+
+    # FIXME: sometimes (TM) the IPv6 addresses on ppp0 get lost and I'm not sure why yet;
+    # for now, as a workaround, restart pppd every once in a while to wipe the slate clean
+    systemd.services.restart-pppd = {
+      script = "${getBin pkgs.systemd}/bin/systemctl restart pppd-${cfg.wan.ppp.peerName}.service";
+      startAt = "03:30";
     };
 
   };
