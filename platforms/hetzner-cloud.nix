@@ -15,9 +15,15 @@ with lib; {
       type = types.str;
     };
 
+    bootDevicePath = mkOption {
+      default = "/dev/sda";
+      description = "device containing the boot loader (usually /dev/sda)";
+      type = types.str;
+    };
+
     rootDeviceUUID = mkOption {
       default = null;
-      description = "device UUID for the root filesystem partition";
+      description = "device UUID for the root filesystem partition (usually /dev/sda1)";
       example = "6f296c44-4686-43c6-b27e-b7af28818f1a";
       type = types.nullOr types.str;
     };
@@ -27,7 +33,7 @@ with lib; {
     # use Grub bootloader
     boot.loader.grub = {
       enable = true;
-      device = "/dev/sda";
+      device = config.my.hetzner-cloud.bootDevicePath;
     };
 
     # imported from the auto-generated /etc/nixos/hardware-configuration.nix
