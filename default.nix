@@ -85,7 +85,7 @@ in {
       dnsutils # dig(1), host(1)
       file
       gnumake
-      gofu
+      (pkgs.callPackage ./pkgs/gofu/default.nix {})
       gptfdisk
       jq
       lsof
