@@ -172,9 +172,9 @@ in {
     };
 
     # network configuration: announce systemd-resolved's local DNS resolver as the default DNS to LAN
-    services.resolved.extraConfig = ''
-      DNSStubListenerExtra = 10.0.0.${toString config.my.machineID}
-    '';
+    services.resolved.settings.Resolve = {
+      DNSStubListenerExtra = "10.0.0.${toString config.my.machineID}";
+    };
 
     # firewall configuration: allow LAN users to reach WAN (this requires manual sysctl for IPv6 forwarding,
     # because for some reason stock NixOS options only allow enable IPv6 forwarding when also enabling NATv6)
