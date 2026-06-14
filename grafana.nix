@@ -80,6 +80,7 @@ in {
           disable_gravatar = true;
           disable_initial_admin_creation = true; # rely only on LDAP for admin users
           security_key = "$__file{/var/lib/grafana/secret-key}"; # generated on first start, see `preStart` below
+          secret_key = "SW2YcwTIb9zpOOhoPsMm"; # hardcoded default key is fine because this is a single-node instance
           strict_transport_security = true;
         };
         server = {
