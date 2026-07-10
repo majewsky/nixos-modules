@@ -218,16 +218,70 @@ in {
         interface = cfg.lan.interface;
         except-interface = "lo"; # systemd-resolved listens here
 
-        dnssec = true;
-        # source: <https://data.iana.org/root-anchors/root-anchors.xml>
-        trust-anchor = ".,19036,8,2,49AAC11D7B6F6446702E54A1607371607A1A41855200FD2CE1CDDE32F24E8FB5";
+        addn-hosts = "/var/lib/adblock/hosts.txt";
+
+        # NOTE: dnssec must be disabled because it does not work with the ISP nameservers for some reason
+        #
+        # dnssec = true;
+        # # source: <https://data.iana.org/root-anchors/root-anchors.xml>
+        # trust-anchor = ".,19036,8,2,49AAC11D7B6F6446702E54A1607371607A1A41855200FD2CE1CDDE32F24E8FB5";
       };
     };
     systemd.services.dnsmasq.enableStrictShellChecks = false; # TODO 26.11: check if still needed
 
-    # TODO system.activationScripts for setting up empty /var/lib/adblock/hosts.txt
-    # TODO timer unit to download /var/lib/adblock/hosts.txt
+    # for dnsmasq: ensure that /var/lib/adblock/hosts.txt always exists
+    system.activationScripts.adblock-hosts-file = ''
+      install -d -m 0755 -o dnsmasq -g dnsmasq /var/lib/adblock
+      if [ ! -f /var/lib/adblock/hosts.txt ]; then
+        install -m 0755 -o dnsmasq -g dnsmasq /dev/null /var/lib/adblock/hosts.txt
+      fi
+    '';
 
+    # cronjob to download the adblock host list every once in a while
+    systemd.services.adblock-sync = {
+      startAt = "03:35"; # after restart-pppd above
+
+      # This part of the cronjob needs to run as root to reload dnsmasq.service,
+      # but we want the actual download to run with low privileges.
+      script = "systemctl start adblock-sync-lowpriv && systemctl stop dnsmasq";
+    };
+    systemd.services.adblock-sync-lowpriv = {
+      path = [ pkgs.wget ];
+      script = ''
+        cd /var/lib/adblock
+        wget -O downloaded.txt https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts || exit 1
+        grep '^0.0.0.0 ' < downloaded.txt | grep -v '^0.0.0.0 0.0.0.0' | sort -u > hosts.txt.new
+        mv hosts.txt.new hosts.txt
+      '';
+
+      serviceConfig = {
+        Type = "oneshot"; # to ensure that dnsmasq.service is only reloaded once the script above is done
+
+        WorkingDirectory = "/var/lib/adblock";
+        User = "dnsmasq";
+        Group = "dnsmasq";
+
+        # hardening
+        ReadOnlyPaths = "/";
+        ReadWritePaths = "/var/lib/adblock";
+        NoExecPaths = "/";
+        ExecPaths = "/nix/store";
+
+        PrivateDevices = true;
+        PrivateIPC = true;
+        PrivateMounts = true;
+        PrivateTmp = true;
+        ProtectControlGroups = true;
+        ProtectKernelModules = true;
+        ProtectKernelTunables = true;
+
+        LockPersonality = true;
+        MemoryDenyWriteExecute = true;
+        RestrictNamespaces = true;
+        RestrictSUIDSGID = true;
+        SystemCallFilter = "@system-service";
+      };
+    };
   };
 
 }
