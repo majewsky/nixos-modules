@@ -165,15 +165,10 @@ in {
         PoolSize = 100;
         UplinkInterface = "ppp0";
         EmitDNS = true;
-        DNS = [ "_server_address" ]; # systemd-resolved listens here (see below)
+        DNS = [ "_server_address" ]; # dnsmasq listens here (see below)
         EmitNTP = false;
         EmitSIP = false;
       };
-    };
-
-    # network configuration: announce systemd-resolved's local DNS resolver as the default DNS to LAN
-    services.resolved.settings.Resolve = {
-      DNSStubListenerExtra = "10.0.0.${toString config.my.machineID}";
     };
 
     # firewall configuration: allow LAN users to reach WAN (this requires manual sysctl for IPv6 forwarding,
@@ -211,6 +206,27 @@ in {
       script = "${getBin pkgs.systemd}/bin/systemctl restart pppd-${cfg.wan.ppp.peerName}.service";
       startAt = "03:30";
     };
+
+    # network configuration: dnsmasq serves local DNS with adblocking for security (no DHCP, systemd-networkd does that already)
+    services.dnsmasq = {
+      enable = true;
+      alwaysKeepRunning = true;
+      resolveLocalQueries = false; # systemd-resolved does that
+
+      settings = {
+        bind-interfaces = true; # do not bind on 0.0.0.0 and [::] to avoid conflict with systemd-resolved
+        interface = cfg.lan.interface;
+        except-interface = "lo"; # systemd-resolved listens here
+
+        dnssec = true;
+        # source: <https://data.iana.org/root-anchors/root-anchors.xml>
+        trust-anchor = ".,19036,8,2,49AAC11D7B6F6446702E54A1607371607A1A41855200FD2CE1CDDE32F24E8FB5";
+      };
+    };
+    systemd.services.dnsmasq.enableStrictShellChecks = false; # TODO 26.11: check if still needed
+
+    # TODO system.activationScripts for setting up empty /var/lib/adblock/hosts.txt
+    # TODO timer unit to download /var/lib/adblock/hosts.txt
 
   };
 
