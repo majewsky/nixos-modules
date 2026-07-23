@@ -179,7 +179,9 @@ in {
       serverAliases = if (builtins.length (splitString "." domainName)) == 2 then [ "www.${domainName}" ] else [];
 
       extraConfig = let
-        defaultCSPs = ["default-src 'self' 'unsafe-inline';" "img-src 'self' data:;"];
+        defaultCSPs = if domainName == "xyrillian.de"
+          then ["default-src 'self' 'unsafe-inline';" "img-src 'self' data: https://dl.xyrillian.de;"] # TODO: ugly (extraCSPs should be able to override an entry in defaultCSPs)
+          else ["default-src 'self' 'unsafe-inline';" "img-src 'self' data:;"];
       in ''
         charset utf-8;
         source_charset utf-8;
