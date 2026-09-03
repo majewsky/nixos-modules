@@ -2,13 +2,13 @@
 
 buildGoModule rec {
   pname = "gofu";
-  version = "2026.2";
+  version = "2026.3";
 
   src = fetchFromGitHub { # NOTE: not fetching from git.xyrillian.de here to avoid circular dependency
     owner = "majewsky";
     repo = "gofu";
     rev = "v${version}";
-    sha256 = "sha256-4ssDfWsV1/3iQ7beR+kyqsN+rMe6cxda4OB6f8KkWVY=";
+    sha256 = "sha256-Q6ZAFt4tI9N4MI7DP7TuIAsLjYxP15lrUJ8GPJ7aRBk=";
   };
 
   vendorHash = null;
